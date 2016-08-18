@@ -4,7 +4,7 @@ Created by: Emmanuel Goh
 '''
 
 # Library for doing all the matrix stuff
-import numpy
+import numpy as np
 # Library for parsing command line arguments
 import sys
 
@@ -12,12 +12,13 @@ def main():
   '''
   Main method in the function
   Arguments to pass, in the following order:
-  @numx: Number of different price points of the stock
-  @numt: Number of different time points of monitoring
-  @maxx: Maximum price of the stock at any point of time
+  @maxx: Maximum numeraire value of the stock at any point of time
   @maxt: Time to maturity of the stock, assuming current time t=0
+  @numx: Number of different numeraire points of the stock
+  @numt: Number of different time points of monitoring
+  Note that minimum price of a stock is simply 0
   '''
-  print sys.argv
+  maxx, maxt, numx, numt = sys.argv[1:] # First argument of argv is the script name
 
 if __name__ == "__main__":
   main()
