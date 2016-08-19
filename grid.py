@@ -1,11 +1,17 @@
 import numpy
 
 class Grid:
-  def __init__(self, numx, numt):
+  def __init__(self, maxx, maxt, numx, numt):
     '''
     Initializes the Grid used for the Finite Difference Scheme
     '''
-    self.matrix = numpy.matrix([[0] * numt] * numx)
+    self.matrix = numpy.matrix([[0] * numt] * numx, dtype=numpy.float64)
+    self.maxx = maxx
+    self.maxt = maxt
+
+    # Set the difference between each point
+    self.dx = maxx / numx
+    self.dt = maxt / numt
 
   def get_raw_matrix(self):
     '''
@@ -40,3 +46,13 @@ class Grid:
     Returns the value of the cell at (row, cell)
     '''
     return self.matrix.item((row, col))
+
+  def value_at(self, price, time):
+    '''
+    Returns the value found at the price and time given.
+    Note: Floored
+    '''
+    return self.matrix.item((price // self.dx, time // self.dt))
+
+  def set_value_at(self, price, time, val):
+    self.matrix.itemset((price // self.dx, time // self.dt), val)
