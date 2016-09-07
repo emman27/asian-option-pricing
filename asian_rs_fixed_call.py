@@ -1,19 +1,9 @@
-from grid import Grid
+from option import Option
 import math
 
-class AsianRSFixedCall:
+class AsianRSFixedCall(Option):
   def __init__(self, maxx, maxt, numx, numt, r, sigma):
-    self.maxx = maxx
-    self.T = maxt
-    self.numx = numx
-    self.numt = numt
-    self.r = r
-    self.sigma = sigma
-
-    self.dx = maxx / numx
-    self.dt = maxt / numt
-
-    self.grid = Grid(maxx, maxt, numx, numt)
+    super().__init__(maxx, maxt, numx, numt, r, sigma)
 
     self.set_boundary_conditions()
 
@@ -35,3 +25,5 @@ class AsianRSFixedCall:
     top = (1 - math.exp(-self.r * time))
     bottom = (self.r * self.T)
     return top / bottom
+
+print(AsianRSFixedCall(3, 1, 300, 100, 0.02, 0.3).grid)

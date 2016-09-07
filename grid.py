@@ -10,8 +10,8 @@ class Grid:
     self.maxt = maxt
 
     # Set the difference between each point
-    self.dx = maxx / numx
-    self.dt = maxt / numt
+    self.dx = maxx / float(numx)
+    self.dt = maxt / float(numt)
 
   def get_raw_matrix(self):
     '''
@@ -52,7 +52,10 @@ class Grid:
     Returns the value found at the price and time given.
     Note: Floored
     '''
-    return self.matrix.item((price // self.dx, time // self.dt))
+    return self.matrix.item((int(price / self.dx), int(time / self.dt)))
 
   def set_value_at(self, price, time, val):
-    self.matrix.itemset((price // self.dx, time // self.dt), val)
+    self.matrix.itemset((int(price / self.dx), int(time / self.dt)), val)
+
+  def __str__(self):
+    return self.matrix.__str__()
