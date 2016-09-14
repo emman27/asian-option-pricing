@@ -5,7 +5,7 @@ class Grid:
         '''
         Initializes the Grid used for the Finite Difference Scheme
         '''
-        self.matrix = numpy.matrix([[0] * numt] * numx, dtype=numpy.float64)
+        self.matrix = numpy.matrix([[0] * numt] * numx, dtype=float)
         self.maxx = maxx
         self.maxt = maxt
 
@@ -48,20 +48,29 @@ class Grid:
         return self.matrix.item((row, col))
 
     def value_at(self, price, time):
-      '''
+        '''
         Returns the value found at the price and time given.
         Note: Floored
         '''
         return self.matrix.item((int(price / self.dx), int(time / self.dt)))
 
     def set_value_at(self, price, time, val):
+        '''
+        Sets a particular point in state and time to a value
+        '''
         self.matrix.itemset((int(price / self.dx), int(time / self.dt)), val)
 
     def get_col(self, col_num):
+        '''
+        Returns the required column
+        '''
         return self.matrix[:, col_num]
 
     def set_col(self, col_num, new_col):
-       pass
+        '''
+        Sets the required column
+        '''
+        pass
 
     def __str__(self):
-       return self.matrix.__str__()
+        return self.matrix.__str__()

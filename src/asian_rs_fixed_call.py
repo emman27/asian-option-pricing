@@ -1,13 +1,22 @@
-from option import Option
+'''
+Implements the Asian Option with the Rogers-Shi PDE
+'''
 import math
+from src.option import Option
 
 class AsianRSFixedCall(Option):
+    '''
+    Implements the Asian Option with the Rogers-Shi PDE
+    '''
     def __init__(self, maxx, maxt, numx, numt, r, sigma):
         super().__init__(maxx, maxt, numx, numt, r, sigma)
 
         self.set_boundary_conditions()
 
     def set_boundary_conditions(self):
+        '''
+        Sets the boundary conditions for the grid based on PDE formulation
+        '''
         self.set_height_zero()
 
     def set_height_zero(self):
@@ -28,21 +37,23 @@ class AsianRSFixedCall(Option):
 
     def alpha(self, height):
         '''
-        Methods to calculate the abstracted alpha and beta variables.
-        Math needs to be confirmed
+        Calculates the alpha variable, abstraction of coefficients
         '''
         return .25 * self.sigma**2 * height**2 * self.dt
 
     def beta(self, height):
-        return (height * self.r * self.dx + 1 / self.maxt) * (self.dt / (4 * self.dx))
+        '''
+        Calculates the beta variable, abstraction of the coefficients
+        '''
+        return (height * self.r * self.dx + 1 / self.T) * (self.dt / (4 * self.dx))
 
-    def A(self, curr_col):
+    def mat_a(self, curr_col):
         '''
         Matrix A containing the coefficients applied to the current column
         '''
         pass
 
-    def B(self, curr_col):
+    def mat_b(self, curr_col):
         '''
         Matrix B containing the coefficients applied to the next column, aka the one we are solving
         '''
