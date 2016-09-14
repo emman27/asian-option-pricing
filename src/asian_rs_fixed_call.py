@@ -36,4 +36,16 @@ class AsianRSFixedCall(Option):
   def beta(self, height):
     return (height * self.r * self.dx + 1 / self.maxt) * (self.dt / (4 * self.dx))
 
+  def A(self, curr_col):
+    '''
+    Matrix A containing the coefficients applied to the current column
+    '''
+    pass
+
+  def B(self, curr_col):
+    '''
+    Matrix B containing the coefficients applied to the next column, aka the one we are solving
+    '''
+    pass
+
 print(AsianRSFixedCall(3, 1, 300, 100, 0.02, 0.3).grid)

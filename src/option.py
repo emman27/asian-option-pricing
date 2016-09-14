@@ -23,8 +23,8 @@ class Option:
 
   def A(col):
     '''Abstract method'''
-    pass
+    raise NotImplementedError('This method is an abstract method')
 
   def B(col):
     '''Abstract method'''
-    pass
+    raise NotImplementedError('This method is an abstract method')

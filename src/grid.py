@@ -60,5 +60,8 @@ class Grid:
   def get_col(self, col_num):
     return self.matrix[:, col_num]
 
+  def set_col(self, col_num, new_col):
+    pass
+
   def __str__(self):
     return self.matrix.__str__()
