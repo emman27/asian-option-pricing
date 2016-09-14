@@ -33,5 +33,11 @@ class TestGridMethods(unittest.TestCase):
     with self.assertRaises(IndexError):
       grid.get_value(1, 1)
 
+  def testGetColumn(self):
+    grid = Grid(1, 1, 2, 2)
+    grid.set_value(0, 0, 1)
+    grid.set_value(1, 0, 1)
+    self.assertEqual([[1], [1]], list(grid.get_col(0)))
+
 if __name__ == '__main__':
     unittest.main()
