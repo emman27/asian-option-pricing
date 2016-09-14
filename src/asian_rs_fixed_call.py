@@ -26,13 +26,14 @@ class AsianRSFixedCall(Option):
     bottom = (self.r * self.T)
     return top / bottom
 
-
-  # Methods to calculate the abstracted alpha and beta variables.
-  # Math needs to be confirmed
-  def self.alpha(height):
+  def alpha(self, height):
+    '''
+    Methods to calculate the abstracted alpha and beta variables.
+    Math needs to be confirmed
+    '''
     return .25 * self.sigma**2 * height**2 * self.dt
 
-  def self.beta(height):
+  def beta(self, height):
     return (height * self.r * self.dx + 1 / self.maxt) * (self.dt / (4 * self.dx))
 
 print(AsianRSFixedCall(3, 1, 300, 100, 0.02, 0.3).grid)

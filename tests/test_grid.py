@@ -1,5 +1,6 @@
+from .context import src
+from src.grid import Grid
 import unittest
-from grid import Grid
 
 class TestGridMethods(unittest.TestCase):
   def testGridSize(self):
