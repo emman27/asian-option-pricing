@@ -1,5 +1,6 @@
 from option import Option
 import math
+import numpy
 
 class AsianRSFixedCall(Option):
   def __init__(self, maxx, maxt, numx, numt, r, sigma):
@@ -29,37 +30,56 @@ class AsianRSFixedCall(Option):
 
   # Methods to calculate the abstracted alpha and beta variables.
   # Math needs to be confirmed
-  def alpha(height):
-    return .25 * self.sigma**2 * height**2 * self.dt
+  def alpha(self, height):
+    return .25 * self.sigma**2 * height**2
 
-  def beta(height):
-    return (height * self.r * self.dx + 1 / self.maxt) * (self.deft / (4 * self.dx))
+  def beta(self, height):
+    return (height * self.r * self.dx + 1 / self.T)  / (4 * self.dx)
 
   # The relation between two columns are given by
   # R = (I-B)^-1 * A * L
   # where they follow the original relation
   # R = AL + BR, with
   # A = [[1,0,0,0...]...[i-1th, ith, i+1th, 0, 0...], [0, i-1th, ith, i+1th, 0...]...[...0,0,0,1]]
-  def A_matrix():
-    A = numpy.matrix([[0] * numt] * numx, dtype = numpy.float64)
-    for i in range(1, numx - 1):
-      a = alpha(i)
-      b = beta(i)
-      A.itemset((i, i - 1), (a + b) * dt)
-      A.itemset((i, i), (1/dt - 2*a) * dt)
-      A.itemset((i, i + 1), (a - b) * dt)
+  def A_matrix(self):
+    A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
+    for i in range(1, self.numx - 1):
+      a = self.alpha(i)
+      b = self.beta(i)
+      A.itemset((i, i - 1), (a + b) * self.dt)
+      A.itemset((i, i), (1/self.dt - 2*a) * self.dt)
+      A.itemset((i, i + 1), (a - b) * self.dt)
     return A
 
-  def B_matrix():
-    B = numpy.matrix([[0] * numt] * numx, dtype = numpy.float64)
+  def B_matrix(self):
+    B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
     B.itemset((0,0), 1)
-    B.itemset((numx - 1, numt - 1), 1)
-    for i in range(1, numx - 1):
-      a = alpha(i)
-      b = beta(i)
-      A.itemset((i, i - 1), (a + b) * dt)
-      A.itemset((i, i), (-2 * a) * dt)
-      A.itemset((i, i + 1), (a - b) * dt)
+    B.itemset((self.numx - 1, self.numx - 1), 1)
+    for i in range(1, self.numx - 1):
+      a = self.alpha(i)
+      b = self.beta(i)
+      B.itemset((i, i - 1), (a + b) * self.dt)
+      B.itemset((i, i), (-2 * a) * self.dt)
+      B.itemset((i, i + 1), (a - b) * self.dt)
     return B
 
-print(AsianRSFixedCall(3, 1, 300, 100, 0.02, 0.3).grid)
+  def solve(self):
+    A = self.A_matrix()
+    B = self.B_matrix()
+
+    top_coeff = B[1, 0]
+    btm_coeff = B[-2, -1]
+
+    a_mat = self.A_matrix()[1:self.numx-1, 1:self.numx-1]
+    b_mat = self.B_matrix()[1:self.numx-1, 1:self.numx-1]
+    for i in range(self.numt - 1):
+      L = self.grid.get_raw_matrix()[1:self.numx-1, i]
+      k = numpy.matrix([[0]] * (self.numx - 2), dtype=numpy.float64)
+      k.itemset((0,0), self.grid.get_raw_matrix()[0, i+1] * top_coeff)
+      k.itemset((-1, 0), self.grid.get_raw_matrix()[self.numx - 1, i+1] * btm_coeff)
+      new = (numpy.identity(self.numx-2) - b_mat).getI() * (a_mat * L + k)
+      for j in range(self.numx - 2):
+        self.grid.set_value(j + 1, i + 1, new[j, 0])
+    return self.grid.get_raw_matrix()
+
+print(AsianRSFixedCall(3, 1, 30, 10, 0.02, 0.3).solve())
