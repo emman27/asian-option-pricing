@@ -3,8 +3,12 @@ import math
 import numpy
 
 class AsianRSFixedCall(Option):
-  def __init__(self, maxx, maxt, numx, numt, r, sigma):
+  def __init__(self, maxx, maxt, numx, numt, r, sigma, initial_price, strike):
+    j0 = round(numx/2)
+    maxx = strike / j0 / initial_price * numx
     super().__init__(maxx, maxt, numx, numt, r, sigma)
+    self.initial_price = initial_price
+    self.strike = strike
 
     self.set_boundary_conditions()
 
@@ -80,6 +84,10 @@ class AsianRSFixedCall(Option):
       new = (numpy.identity(self.numx-2) - b_mat).getI() * (a_mat * L + k)
       for j in range(self.numx - 2):
         self.grid.set_value(j + 1, i + 1, new[j, 0])
-    return self.grid.get_raw_matrix()
+    print(self.grid.get_raw_matrix()[:, self.numt - 1])
+    return self.initial_price * self.grid.get_value(self.find_j(), self.numt - 1)
 
-print(AsianRSFixedCall(3, 1, 30, 10, 0.02, 0.3).solve())
+  def find_j(self):
+    return round(self.strike / (self.initial_price * self.dx))
+
+print(AsianRSFixedCall(300, 1, 200, 400, 0.09, 0.3, 100, 100).solve())
