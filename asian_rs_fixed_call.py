@@ -4,7 +4,7 @@ import numpy
 
 class AsianRSFixedCall(Option):
   def __init__(self, maxx, maxt, numx, numt, r, sigma, initial_price, strike):
-    j0 = round(numx/2)
+    j0 = round(numx/3)
     maxx = strike / j0 / initial_price * numx
     super().__init__(maxx, maxt, numx, numt, r, sigma)
     self.initial_price = initial_price
@@ -35,10 +35,10 @@ class AsianRSFixedCall(Option):
   # Methods to calculate the abstracted alpha and beta variables.
   # Math needs to be confirmed
   def alpha(self, height):
-    return .25 * self.sigma**2 * height**2
+    return .25 * self.sigma**2 * height**2 * self.dt
 
   def beta(self, height):
-    return (height * self.r * self.dx + 1 / self.T)  / (4 * self.dx)
+    return (height * self.r * self.dx + 1 / self.T) * self.dt  / (4 * self.dx)
 
   # The relation between two columns are given by
   # R = (I-B)^-1 * A * L
@@ -50,9 +50,9 @@ class AsianRSFixedCall(Option):
     for i in range(1, self.numx - 1):
       a = self.alpha(i)
       b = self.beta(i)
-      A.itemset((i, i - 1), (a + b) * self.dt)
-      A.itemset((i, i), (1/self.dt - 2*a) * self.dt)
-      A.itemset((i, i + 1), (a - b) * self.dt)
+      A.itemset((i, i - 1), (a + b))
+      A.itemset((i, i), (1 - 2*a))
+      A.itemset((i, i + 1), (a - b))
     return A
 
   def B_matrix(self):
@@ -62,9 +62,9 @@ class AsianRSFixedCall(Option):
     for i in range(1, self.numx - 1):
       a = self.alpha(i)
       b = self.beta(i)
-      B.itemset((i, i - 1), (a + b) * self.dt)
-      B.itemset((i, i), (-2 * a) * self.dt)
-      B.itemset((i, i + 1), (a - b) * self.dt)
+      B.itemset((i, i - 1), (a + b))
+      B.itemset((i, i), (-2 * a))
+      B.itemset((i, i + 1), (a - b))
     return B
 
   def solve(self):
@@ -74,20 +74,25 @@ class AsianRSFixedCall(Option):
     top_coeff = B[1, 0]
     btm_coeff = B[-2, -1]
 
-    a_mat = self.A_matrix()[1:self.numx-1, 1:self.numx-1]
-    b_mat = self.B_matrix()[1:self.numx-1, 1:self.numx-1]
+    a_mat = A[1:self.numx-1, 1:self.numx-1]
+    b_mat = B[1:self.numx-1, 1:self.numx-1]
+
     for i in range(self.numt - 1):
       L = self.grid.get_raw_matrix()[1:self.numx-1, i]
+
       k = numpy.matrix([[0]] * (self.numx - 2), dtype=numpy.float64)
       k.itemset((0,0), self.grid.get_raw_matrix()[0, i+1] * top_coeff)
+
+      # This line redundant cos all 0 anyway
       k.itemset((-1, 0), self.grid.get_raw_matrix()[self.numx - 1, i+1] * btm_coeff)
+
       new = (numpy.identity(self.numx-2) - b_mat).getI() * (a_mat * L + k)
+
       for j in range(self.numx - 2):
         self.grid.set_value(j + 1, i + 1, new[j, 0])
-    print(self.grid.get_raw_matrix()[:, self.numt - 1])
     return self.initial_price * self.grid.get_value(self.find_j(), self.numt - 1)
 
   def find_j(self):
     return round(self.strike / (self.initial_price * self.dx))
 
-print(AsianRSFixedCall(300, 1, 200, 400, 0.09, 0.3, 100, 100).solve())
+print(AsianRSFixedCall(9821938141, 1, 200, 400, 0.09, 0.3, 100, 100).solve())
