@@ -78,21 +78,26 @@ class AsianRSFixedCall(Option):
     b_mat = B[1:self.numx-1, 1:self.numx-1]
 
     for i in range(self.numt - 1):
-      L = self.grid.get_raw_matrix()[1:self.numx-1, i]
+      self.solve_next_column(a_mat, b_mat, top_coeff, btm_coeff, i);
 
-      k = numpy.matrix([[0]] * (self.numx - 2), dtype=numpy.float64)
-      k.itemset((0,0), self.grid.get_raw_matrix()[0, i+1] * top_coeff)
-
-      # This line redundant cos all 0 anyway
-      k.itemset((-1, 0), self.grid.get_raw_matrix()[self.numx - 1, i+1] * btm_coeff)
-
-      new = (numpy.identity(self.numx-2) - b_mat).getI() * (a_mat * L + k)
-
-      for j in range(self.numx - 2):
-        self.grid.set_value(j + 1, i + 1, new[j, 0])
     return self.initial_price * self.grid.get_value(self.find_j(), self.numt - 1)
 
   def find_j(self):
     return round(self.strike / (self.initial_price * self.dx))
+
+  def solve_next_column(self, a_mat, b_mat, top_coeff, btm_coeff, i):
+    L = self.grid.get_raw_matrix()[1:self.numx-1, i]
+
+    k = numpy.matrix([[0]] * (self.numx - 2), dtype=numpy.float64)
+    k.itemset((0,0), self.grid.get_raw_matrix()[0, i+1] * top_coeff)
+    # This line redundant cos all 0 anyway
+    k.itemset((-1, 0), self.grid.get_raw_matrix()[self.numx - 1, i+1] * btm_coeff)
+
+    new = (numpy.identity(self.numx-2) - b_mat).getI() * (a_mat * L + k)
+    self.set_values_for_next_col(i, new)
+
+  def set_values_for_next_col(self, i, new):
+    for j in range(self.numx - 2):
+        self.grid.set_value(j + 1, i + 1, new[j, 0])
 
 print(AsianRSFixedCall(9821938141, 1, 200, 400, 0.09, 0.3, 100, 100).solve())
