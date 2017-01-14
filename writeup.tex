@@ -1,0 +1,227 @@
+\documentclass{article}
+\usepackage{mathtools}
+
+\begin{document}
+
+\section{Definitions}
+
+\begin{table}[h]
+\begin{tabular}{|c|c|}
+  \hline
+  \textbf{Description} & \textbf{Variable Name} \\ \hline
+  Stock Price & \(S\) \\
+  Strike Price & \(K\)\\
+  Average Price & \(A\) \\
+  Lifespan of the Option & \(T\) \\
+  Initial time & \(t_0\) \\
+  Risk Free Rate & \(r\) \\
+  Dividend Rate & \(\delta\) \\
+  \hline
+\end{tabular}
+\caption{Variables used in various equations}
+\label{table:name}
+\end{table}
+
+The average price of a stock is given by
+\begin{equation}
+  A_T = \frac{t_0A + \int_0^T S_t \mathrm{d}t}{t_0 + T}.
+\end{equation}.
+
+We define also the function \(q(t)\) such that
+\begin{equation}
+  q(t) =
+  \begin{dcases*}
+    1 - e^{-(r-\delta)(T-t)} & \(r \neq \delta\) \\
+    \frac{T-t}{t_0 + T} & \(r\) = \(\delta\)
+  \end{dcases*},
+\end{equation}
+
+and by this we obtain the value process of a self-financing portfolio with payoff \(A_T\), also known as the average asset.
+
+\begin{equation}
+  A_t = e^{-r(T-t)}E_P(A_T|\mathcal{F}_T) = q(t)\tilde{S_t} + e^{-r(T-t)} \frac{t_0 A + \int_0^tS_u\mathrm{d}u}{t_0+T}.
+\end{equation}
+
+We also define
+\begin{equation}
+  \xi_t = a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}}.
+\end{equation}
+
+and are given the following governing partial differential equation
+
+\begin{equation}
+  \phi_t + [\dot{a}(t) + \dot{b}(t)(\xi - a(t))/b(t)]\phi_\xi + \frac{1}{2}\sigma^2[a(t)+b(t)q(t) - \xi]^2\phi_{\xi\xi} = 0,
+\end{equation}
+
+where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below table.
+
+\begin{table}[h]
+  \begin{tabular}{|c|c|c|}
+    \hline
+    & Fixed Strike & Floating Strike \\
+    \hline
+    Calls & \(max\{(\xi - a(T))/b(T), 0\}\) & \(max\{(a(T) - \xi)/b(T) + 1, 0\}\) \\
+    Puts & \(max\{(a(T) - \xi)/b(T ), 0\}\) & \(max\{(\xi - a(T))/b(T) - 1, 0\}\)\\
+    \hline
+  \end{tabular}
+  \caption{Different possible values of \(f(\xi)\)}
+\end{table}
+
+\section{Partial Differential Equations}
+
+\subsection{Boundary Conditions}
+\begin{table}[h]
+  \begin{tabular}{|c|c|c|}
+    \hline
+    & \(\xi \rightarrow \infty\) & \(\xi \rightarrow -\infty\) \\
+    \hline
+    \(b(t) > 0\) &  & \(\phi(t, \xi) \rightarrow 0\) \\
+    \(b(t) < 0\) & \(\phi(t, \xi) \rightarrow 0\) & \\
+    \hline
+  \end{tabular}\\
+  \begin{tabular}{|c|c|c|}
+    \hline
+    & \(\xi \ge a(t) + q(t)b(t)\) & \(\xi \le a(t) + q(t)b(t)\) \\
+    \hline
+    \(b(t) > 0\) & \(\phi(t, \xi) = \frac{\xi-a(t)}{b(t)} \) & \\
+    \(b(t) < 0\) &  & \( \phi(t, \xi) = \frac{\xi-a(t)}{b(t)} \) \\
+    \hline
+  \end{tabular}
+  \caption{Different Boundary Conditions}
+\end{table}
+
+\subsection{Rogers Shi Fixed Strike Calls}
+We take
+\begin{equation}
+  \xi_t = q(t)e^{(r-\delta)(T-t)} - e^{(r-\delta)(T-t)}\frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}}.
+\end{equation}
+
+Then, we have \( a(t) = -q(t)b(t) \) and \(b(t) = -e^{-(r-\delta)(T-t)}\). The partial differential equation then becomes
+
+\begin{equation}
+  \phi_t - ( (r-\delta)\xi + \frac{1}{t_0 + T} ) \phi_\xi + \frac{1}{2}\sigma^2\xi^2\phi_{\xi\xi} = 0.
+\end{equation}
+
+Rogers and Shi show that the value of the option at time \(t\) is given by \(S_t\phi(t, \xi_t)\). We then solve the PDE with the following conditions:
+
+\begin{equation}
+  \phi(T, \xi) = 0, 0 \le \xi \le \xi_{max}
+\end{equation}
+\begin{equation}
+  \phi(t, 0) = q(t) \\
+\end{equation}
+\begin{equation}
+  \phi(t, \xi_{max}) = 0, 0 \le t \le T.
+\end{equation}
+
+This problem is transformed with \(\tau = T - t \), such that \(\psi(\tau, \xi) = \phi(T-\tau, \xi)\). This changes our partial differential equation to
+\begin{equation}
+  \psi_\tau = \frac{1}{2}\sigma^2\xi^2\psi_{\xi\xi} - (r\xi + \frac{1}{T})\psi_\xi,
+\end{equation}
+subject to the conditions
+\begin{equation}
+  \psi(0, \xi) = 0, 0 \le \xi \le \xi_{max},
+\end{equation}
+\begin{equation}
+  \psi(\tau, 0) = \frac{1-e^{-r\tau}}{rT},
+\end{equation}
+\begin{equation}
+  \psi(\tau, \xi_{max}) = 0, 0 \le \tau \le T.
+\end{equation}
+
+We let \(\Delta\tau = \frac{T}{n}\) and \(\Delta\xi = \frac{\xi_{max}}{m}\), and define \(0 \le i \le n\) and \(0 \le j \le m\) as the indexes required for the finite difference grid
+
+Replacing the PDE with the Crank-Nicholson discretizations yields the following equation:
+\begin{equation}
+  \begin{split}
+    \frac{u_{i+1, j} - u_{i, j}}{\Delta\tau} = & \frac{1}{2}\sigma^2j^2(\Delta\xi)^2 * \frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1} -2u_{i+1, j} + u_{i+1, j-1}}{2(\Delta\xi)^2} \\ & - (rj\Delta\xi + \frac{1}{T}) * \frac{u_{i, j+1} - u_{i,j-1} +u_{i+1, j+1} - u_{i+1, j-1}}{4\Delta\xi}.
+  \end{split}
+\end{equation}
+
+We extract out the common variables such that
+\begin{equation}
+  \alpha(j) = \frac{1}{4}\sigma^2j^2\Delta\tau,
+\end{equation}
+\begin{equation}
+  \beta(j) = \frac{1}{4\Delta\xi}\Delta\tau(rj\Delta\xi - \frac{1}{T}).
+\end{equation}
+
+The discretization is rearranged to yield
+\begin{equation}
+  \begin{split}
+    u_{i+1, j} = & (1-2\alpha(j))u_{i, j} \\
+    & + (\alpha(j)-\beta(j))u_{i, j+1}\\
+    & + (\alpha(j)+\beta(j))u_{i, j-1}\\
+    & + (-2\alpha(j))u_{i+1, j}\\
+    & + (\alpha(j)-\beta(j))u_{i+1, j+1}\\
+    & + (\alpha(j)+\beta(j))u_{i+1, j-1}.
+  \end{split}
+\end{equation}
+
+We convert to the matrix form required for the Implicit Difference Scheme used. Truncating the rows where \(j=0\) and \(j=m\), we have
+
+\begin{equation}
+  \textbf{r} = \textbf{Al} + \textbf{Br} + \textbf{k},
+\end{equation}
+
+where
+
+\begin{equation}
+  \textbf{l} = u_{i},
+\end{equation}
+\begin{equation}
+  \textbf{r} = u_i+1,
+\end{equation}
+\begin{equation}
+  \textbf{A} = \begin{bmatrix}
+    1-2\alpha(1) & \alpha(1) - \beta(1) & 0 & 0 & \hdots & 0 \\
+    \alpha(2) + \beta(2) & 1-2\alpha(2) & \alpha(2) - \beta(2) & 0 & \hdots & 0 \\
+    0 & \alpha(3) + \beta(3) & 1-2\alpha(3) & \alpha(3) - \beta(3) & \hdots & 0 \\
+    \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & 0 & 0 & \hdots & 1-2\alpha(m-1)
+  \end{bmatrix},
+\end{equation}
+\begin{equation}
+  \textbf{B} = \begin{bmatrix}
+    -2\alpha(1) & \alpha(1) - \beta(1) & 0 & 0 & \hdots & 0 \\
+    \alpha(2) + \beta(2) & -2\alpha(2) & \alpha(2) - \beta(2) & 0 & \hdots & 0 \\
+    0 & \alpha(3) + \beta(3) & -2\alpha(3) & \alpha(3) - \beta(3) & \hdots & 0 \\
+    \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & 0 & 0 & \hdots & -2\alpha(m-1)
+  \end{bmatrix},
+\end{equation}
+\begin{equation}
+  \textbf{k} = \begin{bmatrix}
+    (\alpha(1) + \beta(1))u_{i, 0} + (\alpha(1) + \beta(1))u_{i+1, 0} \\
+    0 \\
+    \vdots \\
+    0 \\
+    (\alpha(m-1) - \beta(m-1))u_{i, m} + (\alpha(m-1) + \beta(m-1))u_{i+1, m}
+  \end{bmatrix}
+\end{equation}
+
+This rearranges to
+
+\begin{equation}
+  \textbf{r} = (\textbf{I} - \textbf{B})^{-1}(\textbf{Al}+\textbf{k}).
+\end{equation}
+
+We can then proceed with solving the Finite Difference Grid based on the above recurrence relation. Adjusting \(\xi_{max}\) such that we have
+
+\begin{equation}
+  \xi_{max} = \frac{3K}{S_0}.
+\end{equation}
+
+We select \(j'\) such that
+
+\begin{equation}
+  j' = round(\frac{K}{S_0\Delta\xi}).
+\end{equation}
+
+Then, the fair price of the option \(P\) is given by
+
+\begin{equation}
+  P = S_0 u_{n, j'}
+\end{equation}
+
+\end{document}
