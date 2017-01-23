@@ -93,7 +93,7 @@ class AsianRSFixedCall(Option):
     # This line redundant cos all 0 anyway
     k.itemset((-1, 0), self.grid.get_raw_matrix()[self.numx - 1, i+1] * btm_coeff)
 
-    new = (numpy.identity(self.numx-2) - b_mat).getI() * (a_mat * L + k)
+    new = numpy.linalg.solve(numpy.identity(self.numx-2) - b_mat, a_mat * L + k)
     self.set_values_for_next_col(i, new)
 
   def set_values_for_next_col(self, i, new):
