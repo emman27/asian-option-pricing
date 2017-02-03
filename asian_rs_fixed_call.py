@@ -3,101 +3,74 @@ import math
 import numpy
 
 class AsianRSFixedCall(Option):
-  def __init__(self, maxx, maxt, numx, numt, r, sigma, initial_price, strike):
-    j0 = round(numx/3)
-    maxx = strike / j0 / initial_price * numx
-    super().__init__(maxx, maxt, numx, numt, r, sigma)
-    self.initial_price = initial_price
-    self.strike = strike
+    def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
+        super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
+        self.j0 = round(numx/3)
+        self.xi_initial = self.xi(self.s0, 0)
+        self.dx = self.strike / self.s0 / self.j0
+        self.set_boundary_conditions()
 
-    self.set_boundary_conditions()
+    def set_bottom_boundary(self):
+        '''
+        Sets the boundary values for the FDS grid when the height is 0
+        '''
+        for col in range(self.numt + 1):
+            time = col * self.dt
+            self.grid.itemset((0, col), self.initial_zero_value_at_time(time))
 
-  def set_boundary_conditions(self):
-    self.set_height_zero()
+    def initial_zero_value_at_time(self, time):
+        '''
+        Calculates the zero-height value of the FDS grid at given time @time
+        '''
+        top = (1 - math.exp(-self.r * time))
+        bottom = (self.r * self.maxt)
+        return top / bottom
 
-  def set_height_zero(self):
-    '''
-    Sets the boundary values for the FDS grid when the height is 0
-    '''
-    for col in range(self.numt):
-      time = col * self.dt
-      self.grid.set_value_at(0, time, self.initial_zero_value_at_time(time))
+    def a(self, t):
+        return -self.q(t) * self.b(t)
 
-  def initial_zero_value_at_time(self, time):
-    '''
-    Calculates the zero-height value of the FDS grid at given time @time
-    '''
-    top = (1 - math.exp(-self.r * time))
-    bottom = (self.r * self.T)
-    return top / bottom
+    def b(self, t):
+        return -math.exp(self.r*(self.maxt - t))
 
+    # Methods to calculate the abstracted alpha and beta variables. See report.
+    def alpha(self, height):
+        return .25 * self.sigma**2 * height**2 * self.dt
 
-  # Methods to calculate the abstracted alpha and beta variables.
-  # Math needs to be confirmed
-  def alpha(self, height):
-    return .25 * self.sigma**2 * height**2 * self.dt
+    def beta(self, height):
+        return (height * self.r * self.dx + 1 / self.maxt) * self.dt  / (4 * self.dx)
 
-  def beta(self, height):
-    return (height * self.r * self.dx + 1 / self.T) * self.dt  / (4 * self.dx)
+    # The relation between two columns are given by
+    # (I-B) * R = A * L
+    # where they follow the original relation
+    # R = AL + BR. See report.
+    def A_matrix(self):
+        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
+        for i in range(self.numx):
+            a = self.alpha(i)
+            b = self.beta(i)
+            try:
+                A.itemset((i, i - 1), (a + b))
+                A.itemset((i, i), (1 - 2*a))
+                A.itemset((i, i + 1), (a - b))
+            except:
+                pass
+        return A
 
-  # The relation between two columns are given by
-  # R = (I-B)^-1 * A * L
-  # where they follow the original relation
-  # R = AL + BR, with
-  # A = [[1,0,0,0...]...[i-1th, ith, i+1th, 0, 0...], [0, i-1th, ith, i+1th, 0...]...[...0,0,0,1]]
-  def A_matrix(self):
-    A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-    for i in range(1, self.numx - 1):
-      a = self.alpha(i)
-      b = self.beta(i)
-      A.itemset((i, i - 1), (a + b))
-      A.itemset((i, i), (1 - 2*a))
-      A.itemset((i, i + 1), (a - b))
-    return A
+    def B_matrix(self):
+        B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
+        for i in range(self.numx):
+            a = self.alpha(i)
+            b = self.beta(i)
+            try:
+                B.itemset((i, i - 1), (a + b))
+                B.itemset((i, i), (-2 * a))
+                B.itemset((i, i + 1), (a - b))
+            except:
+                pass
+        return B
 
-  def B_matrix(self):
-    B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-    B.itemset((0,0), 1)
-    B.itemset((self.numx - 1, self.numx - 1), 1)
-    for i in range(1, self.numx - 1):
-      a = self.alpha(i)
-      b = self.beta(i)
-      B.itemset((i, i - 1), (a + b))
-      B.itemset((i, i), (-2 * a))
-      B.itemset((i, i + 1), (a - b))
-    return B
+    def solve(self):
+        super().solve(numpy.identity(self.numx) - self.B_matrix(), self.A_matrix())
+        return self.s0 * self.grid[self.j0, self.numt]
 
-  def solve(self):
-    A = self.A_matrix()
-    B = self.B_matrix()
-
-    top_coeff = B[1, 0]
-    btm_coeff = B[-2, -1]
-
-    a_mat = A[1:self.numx-1, 1:self.numx-1]
-    b_mat = B[1:self.numx-1, 1:self.numx-1]
-
-    for i in range(self.numt - 1):
-      self.solve_next_column(a_mat, b_mat, top_coeff, btm_coeff, i);
-
-    return self.initial_price * self.grid.get_value(self.find_j(), self.numt - 1)
-
-  def find_j(self):
-    return round(self.strike / (self.initial_price * self.dx))
-
-  def solve_next_column(self, a_mat, b_mat, top_coeff, btm_coeff, i):
-    L = self.grid.get_raw_matrix()[1:self.numx-1, i]
-
-    k = numpy.matrix([[0]] * (self.numx - 2), dtype=numpy.float64)
-    k.itemset((0,0), self.grid.get_raw_matrix()[0, i+1] * top_coeff)
-    # This line redundant cos all 0 anyway
-    k.itemset((-1, 0), self.grid.get_raw_matrix()[self.numx - 1, i+1] * btm_coeff)
-
-    new = numpy.linalg.solve(numpy.identity(self.numx-2) - b_mat, a_mat * L + k)
-    self.set_values_for_next_col(i, new)
-
-  def set_values_for_next_col(self, i, new):
-    for j in range(self.numx - 2):
-        self.grid.set_value(j + 1, i + 1, new[j, 0])
-
-print(AsianRSFixedCall(9821938141, 1, 200, 400, 0.09, 0.3, 100, 100).solve())
+print(AsianRSFixedCall(1, 200, 400, 0.09, 0.05, 100, 90).solve())
