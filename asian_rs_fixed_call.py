@@ -70,7 +70,9 @@ class AsianRSFixedCall(Option):
         return B
 
     def solve(self):
-        super().solve(numpy.identity(self.numx) - self.B_matrix(), self.A_matrix())
+        a_mat = self.A_matrix()
+        b_mat = self.B_matrix()
+        super().solve(lambda time: numpy.identity(self.numx) - b_mat, lambda time: a_mat)
         return self.s0 * self.grid[self.j0, self.numt]
 
 print(AsianRSFixedCall(1, 200, 400, 0.09, 0.05, 100, 90).solve())
