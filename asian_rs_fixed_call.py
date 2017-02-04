@@ -48,12 +48,11 @@ class AsianRSFixedCall(Option):
         for i in range(self.numx):
             a = self.alpha(i)
             b = self.beta(i)
-            try:
+            if i - 1 >= 0:
                 A.itemset((i, i - 1), (a + b))
-                A.itemset((i, i), (1 - 2*a))
+            A.itemset((i, i), (1 - 2*a))
+            if i + 1 < self.numx:
                 A.itemset((i, i + 1), (a - b))
-            except:
-                pass
         return A
 
     def B_matrix(self):
@@ -61,12 +60,11 @@ class AsianRSFixedCall(Option):
         for i in range(self.numx):
             a = self.alpha(i)
             b = self.beta(i)
-            try:
+            if i - 1 >= 0:
                 B.itemset((i, i - 1), (a + b))
-                B.itemset((i, i), (-2 * a))
+            B.itemset((i, i), (-2 * a))
+            if i + 1 < self.numx:
                 B.itemset((i, i + 1), (a - b))
-            except:
-                pass
         return B
 
     def solve(self):
@@ -75,4 +73,16 @@ class AsianRSFixedCall(Option):
         super().solve(lambda time: numpy.identity(self.numx) - b_mat, lambda time: a_mat)
         return self.s0 * self.grid[self.j0, self.numt]
 
-print(AsianRSFixedCall(1, 200, 400, 0.09, 0.05, 100, 90).solve())
+# Constants
+numx = 200
+numt = 400
+maxt = 1
+r = 0.09
+s0 = 100
+
+sigma = 0.05
+print('Expected: 13.07, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
+print('Expected: 7.82, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
+print('Expected: 3.91, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
+print('Expected: 1.65, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
+print('Expected: 0.59, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
