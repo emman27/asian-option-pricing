@@ -2,30 +2,17 @@ import numpy
 import math
 
 class Option:
-    def __init__(self, maxt, numx, numt, r, sigma, s0, strike):
+    def __init__(self, maxt, numx, numt, r, sigma, s0):
         self.maxt = maxt
         self.numx = numx
         self.numt = numt
         self.r = r
         self.sigma = sigma
         self.s0 = s0
-        self.strike = strike
 
         self.dt = maxt / float(numt)
         # One extra time point to account for t = 0
         self.grid = numpy.matrix([[0] * (self.numt + 1)] * self.numx, dtype = numpy.float64)
-
-    def a(self, t):
-        '''
-        To override in subclasses
-        '''
-        pass
-
-    def b(self, t):
-        '''
-        To override in subclasses
-        '''
-        pass
 
     def q(self, t):
         return (1 - math.exp(-self.r*(self.maxt - t))) / (self.r * self.maxt)
