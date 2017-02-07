@@ -80,16 +80,16 @@ maxt = 1
 r = 0.1
 s0 = 100
 sigma = 0.3
-
-t0 = 0.1
-print('Expected: 9.85, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
-print('Expected: 9.34, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
-print('Expected: 8.84, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
-
-t0 = 0.3
-print('Expected: 10.70, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
-print('Expected: 9.05, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
-print('Expected: 7.61, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
+#
+# t0 = 0.1
+# print('Expected: 9.85, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
+# print('Expected: 9.34, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
+# print('Expected: 8.84, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
+#
+# t0 = 0.3
+# print('Expected: 10.70, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
+# print('Expected: 9.05, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
+# print('Expected: 7.61, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
 
 t0 = 0.9
 print('Expected: 10.38, Actual: ' + str(AsianDLFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
