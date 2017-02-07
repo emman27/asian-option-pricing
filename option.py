@@ -2,13 +2,15 @@ import numpy
 import math
 
 class Option:
-    def __init__(self, maxt, numx, numt, r, sigma, s0):
+    def __init__(self, maxt, numx, numt, r, sigma, s0, avr, t0):
         self.maxt = maxt
         self.numx = numx
         self.numt = numt
         self.r = r
         self.sigma = sigma
         self.s0 = s0
+        self.old_average = avr
+        self.t0 = t0
 
         self.dt = maxt / float(numt)
         # One extra time point to account for t = 0
@@ -18,7 +20,7 @@ class Option:
         return (1 - math.exp(-self.r*(self.maxt - t))) / (self.r * self.maxt)
 
     def avr(self, t):
-        return self.q(t) * self.s0
+        return self.q(t) * self.s0 + math.exp(-self.r * (self.maxt - t)) * self.old_average
 
     def xi(self, s, t):
         return self.a(t) + self.b(t) * (self.avr(t) - self.strike * math.exp(-self.r * (self.maxt - t))) / s
