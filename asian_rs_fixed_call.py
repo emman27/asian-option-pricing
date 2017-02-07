@@ -70,9 +70,16 @@ class AsianRSFixedCall(FixedCall):
     def solve(self):
         a_mat = self.A_matrix()
         b_mat = self.B_matrix()
-        super().solve(lambda time: numpy.identity(self.numx) - b_mat, lambda time: a_mat)
+        self.fake_super_solve(lambda time: numpy.identity(self.numx) - b_mat, lambda time: a_mat)
         return self.s0 * self.grid[self.j0, self.numt]
 
+    def fake_super_solve(self, left_multiplier, right_multiplier):
+        for col in range(self.numt):
+            l = self.grid[:, col]
+            r = self.grid[:, col + 1]
+            new = numpy.linalg.solve(left_multiplier(col), right_multiplier(col) * l)
+            for row in range(1, self.numx):
+                self.grid.itemset((row, col + 1), new[row])
 # Constants
 numx = 200
 numt = 400
