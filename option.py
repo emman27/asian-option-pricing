@@ -17,10 +17,10 @@ class Option:
         self.grid = numpy.matrix([[0] * (self.numt + 1)] * self.numx, dtype = numpy.float64)
 
     def q(self, t):
-        return (1 - math.exp(-self.r*(self.maxt - t))) / (self.r * self.maxt)
+        return (1 - math.exp(-self.r*(self.maxt - t))) / (self.r * (self.t0 + self.maxt))
 
     def avr(self, t):
-        return self.q(t) * self.s0 + math.exp(-self.r * (self.maxt - t)) * self.old_average
+        return self.q(t) * self.s0 + math.exp(-self.r * (self.maxt - t)) * self.t0 * self.old_average / (self.t0 + self.maxt)
 
     def xi(self, s, t):
         return self.a(t) + self.b(t) * (self.avr(t) - self.strike * math.exp(-self.r * (self.maxt - t))) / s
