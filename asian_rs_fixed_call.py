@@ -88,8 +88,8 @@ r = 0.09
 s0 = 100
 
 sigma = 0.05
-print('Expected: 13.07, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-print('Expected: 7.82, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-print('Expected: 3.91, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-print('Expected: 1.65, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-print('Expected: 0.59, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
+# print('Expected: 13.07, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
+# print('Expected: 7.82, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
+# print('Expected: 3.91, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
+# print('Expected: 1.65, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
+# print('Expected: 0.59, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))

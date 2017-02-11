@@ -2,7 +2,7 @@ from fixed_call import FixedCall
 import math
 import numpy
 
-class AsianVecerFixedCall(FixedCall):
+class AsianDLFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
         self.xi_initial = self.xi(self.s0, 0)
@@ -75,8 +75,8 @@ r = 0.09
 s0 = 100
 
 sigma = 0.05
-print('Expected: 13.38, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-print('Expected: 8.81, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-print('Expected: 4.22, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-print('Expected: 1.00, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-print('Expected: 0.09, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
+# print('Expected: 13.38, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
+# print('Expected: 8.81, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
+# print('Expected: 4.22, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
+# print('Expected: 1.00, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
+# print('Expected: 0.09, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))

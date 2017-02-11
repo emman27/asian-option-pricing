@@ -1,14 +1,14 @@
-from fixed_call import FixedCall
 import math
 import numpy
+from fixed_call import FixedCall
 
 class AsianVecerFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
         self.xi_initial = self.xi(self.s0, 0)
         # We choose maxx to be = q(0)
-        self.maxx = self.q(0)
-        self.dx = (self.q(0) + self.maxx) / numx
+        self.maxx = abs(self.q(0))
+        self.dx = (2 * self.maxx) / numx
         self.set_boundary_conditions()
         self.set_strange_boundary()
         self.j0 = round((self.xi_initial + self.maxx) / self.dx)
@@ -47,7 +47,7 @@ class AsianVecerFixedCall(FixedCall):
             if i - 1 >= 0:
                 A.itemset((i, i-1), a)
             A.itemset((i, i), 1 - 2 * a)
-            if i + 1 < numx:
+            if i + 1 < self.numx:
                 A.itemset((i, i + 1), a)
         return A
 
@@ -58,7 +58,7 @@ class AsianVecerFixedCall(FixedCall):
             if i - 1 >= 0:
                 B.itemset((i, i-1), a)
             B.itemset((i, i), -2 * a)
-            if i + 1 < numx:
+            if i + 1 < self.numx:
                 B.itemset((i, i + 1), a)
         return B
 
@@ -66,16 +66,17 @@ class AsianVecerFixedCall(FixedCall):
         super().solve(lambda time: numpy.identity(self.numx) - self.B_matrix(time), lambda time: self.A_matrix(time))
         return self.s0 * self.grid[self.j0, self.numt]
 
-# Constants
-numx = 200
-numt = 400
-maxt = 1
-r = 0.09
-s0 = 100
+if __name__ == '__main__':
+    # Constants
+    numx = 200
+    numt = 400
+    maxt = 1
+    r = 0.09
+    s0 = 100
 
-sigma = 0.05
-print('Expected: 13.38, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-print('Expected: 8.81, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-print('Expected: 4.33, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-print('Expected: 0.88, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-print('Expected: 0.06, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
+    sigma = 0.05
+    print('Expected: 13.38, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
+    print('Expected: 8.81, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
+    print('Expected: 4.33, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
+    print('Expected: 0.88, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
+    print('Expected: 0.06, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
