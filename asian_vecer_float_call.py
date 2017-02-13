@@ -32,7 +32,7 @@ class AsianVecerFloatCall(FloatingCall):
         return 1 + self.maxx
 
     def alpha(self, height, time):
-        return 1/2 * self.sigma**2 * ((1 - math.exp(-r*(time + 0.5) * self.dt))/(self.r * (self.t0 + self.maxt)) + (self.numx / 2 - height) * self.dx)**2 / (2 * self.dx**2) * self.dt
+        return 1/2 * self.sigma**2 * ((1 - math.exp(-self.r*(time + 0.5) * self.dt))/(self.r * (self.t0 + self.maxt)) + (self.numx / 2 - height) * self.dx)**2 / (2 * self.dx**2) * self.dt
 
     def A_matrix(self, time):
         A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
@@ -41,7 +41,7 @@ class AsianVecerFloatCall(FloatingCall):
             if i - 1 >= 0:
                 A.itemset((i, i-1), a)
             A.itemset((i, i), 1 - 2 * a)
-            if i + 1 < numx:
+            if i + 1 < self.numx:
                 A.itemset((i, i + 1), a)
         return A
 
@@ -52,7 +52,7 @@ class AsianVecerFloatCall(FloatingCall):
             if i - 1 >= 0:
                 B.itemset((i, i-1), a)
             B.itemset((i, i), -2 * a)
-            if i + 1 < numx:
+            if i + 1 < self.numx:
                 B.itemset((i, i + 1), a)
         return B
 

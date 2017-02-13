@@ -60,8 +60,7 @@ if __name__ == "__main__":
 
     output = []
     output.append(HEADERS)
-    # len(SIGMAS)*len(STRIKES)*len(METHODS) +
-    bar = progressbar.ProgressBar(max_value = len(SIGMAS_FLOAT)*len(T0S)*len(CURRENT_AVERAGES)*len(METHODS_FLOAT))
+    bar = progressbar.ProgressBar(max_value = len(SIGMAS)*len(STRIKES)*len(METHODS) + len(SIGMAS_FLOAT)*len(T0S)*len(CURRENT_AVERAGES)*len(METHODS_FLOAT))
     k = 0
     for j in range(len(SIGMAS)):
         sigma = SIGMAS[j]
