@@ -19,10 +19,6 @@ class AsianVecerFixedCall(FixedCall):
     def b(self, t):
         return 1
 
-    def set_initial_boundary(self):
-        for row in range(self.numx):
-            self.grid.itemset((row, 0), self.initial_value_at_height(row))
-
     def initial_value_at_height(self, row):
         return max(-self.maxx + row * self.dx, 0)
 

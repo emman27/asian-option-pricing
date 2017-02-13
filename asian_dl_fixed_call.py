@@ -16,18 +16,10 @@ class AsianDLFixedCall(FixedCall):
     def b(self, t):
         return -math.exp(self.r*(self.maxt - t))
 
-    def set_initial_boundary(self):
-        for row in range(self.numx):
-            self.grid.itemset((row, 0), self.initial_value_at_height(row))
-
     def initial_value_at_height(self, row):
         return max(1 - row * self.dx, 0)
 
-    def set_bottom_boundary(self):
-        for col in range(self.numt + 1):
-            self.grid.itemset((0, col), self.initial_value_at_time(col))
-
-    def initial_value_at_time(self, col):
+    def initial_value_at_bottom(self, col):
         return (
             (1 - math.exp(-self.r * col * self.dt)) / (self.r * self.maxt) +
             math.exp(-self.r * col * self.dt) * (self.maxt - col * self.dt) / self.maxt

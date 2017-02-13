@@ -14,18 +14,10 @@ class AsianNewVecerFloatCall(FloatingCall):
     def xi(self, s, t):
         return s / self.avr(t)
 
-    def set_initial_boundary(self):
-        for row in range(self.numx):
-            self.grid.itemset((row, 0), self.initial_value_at_height(row))
-
     def initial_value_at_height(self, row):
         return max(row * self.dx - 1, 0)
 
-    def set_top_boundary(self):
-        for col in range(self.numt):
-            self.grid.itemset((self.numx - 1, col), self.initial_value_at_time(col))
-
-    def initial_value_at_time(self, col):
+    def initial_value_at_top(self, col):
         return self.maxx - 1
 
     def alpha(self, height, time):

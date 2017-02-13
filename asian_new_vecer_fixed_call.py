@@ -20,18 +20,10 @@ class AsianNewVecerFixedCall(FixedCall):
     def avr(self, s, t):
         return self.q(t) * math.exp(-self.r * (self.maxt - t)) * s
 
-    def set_initial_boundary(self):
-        for row in range(self.numx):
-            self.grid.itemset((row, 0), self.initial_value_at_height(row))
-
     def initial_value_at_height(self, row):
         return max(1 - self.strike * row * self.dx / self.s0, 0)
 
-    def set_bottom_boundary(self):
-        for col in range(self.numt):
-            self.grid.itemset((0, col), self.initial_value_at_time(col))
-
-    def initial_value_at_time(self, col):
+    def initial_value_at_botom(self, col):
         return 1
 
     def alpha(self, height, time):

@@ -10,19 +10,11 @@ class AsianRSFixedCall(FixedCall):
         self.dx = self.strike / self.s0 / self.j0
         self.set_boundary_conditions()
 
-    def set_bottom_boundary(self):
-        '''
-        Sets the boundary values for the FDS grid when the height is 0
-        '''
-        for col in range(self.numt + 1):
-            time = col * self.dt
-            self.grid.itemset((0, col), self.initial_zero_value_at_time(time))
-
-    def initial_zero_value_at_time(self, time):
+    def initial_value_at_bottom(self, time):
         '''
         Calculates the zero-height value of the FDS grid at given time @time
         '''
-        top = (1 - math.exp(-self.r * time))
+        top = (1 - math.exp(-self.r * time * self.dt))
         bottom = (self.r * self.maxt)
         return top / bottom
 

@@ -39,10 +39,23 @@ class Option:
                 self.grid.itemset((row, col + 1), new[row])
 
     def set_bottom_boundary(self):
-        pass
+        for i in range(self.numt + 1):
+            self.grid.itemset((0, i), self.initial_value_at_bottom(i))
 
     def set_top_boundary(self):
-        pass
+        for i in range(self.numt + 1):
+            self.grid.itemset((self.numx - 1, i), self.initial_value_at_bottom(i))
 
     def set_initial_boundary(self):
-        pass
+        for j in range(self.numx):
+            self.grid.itemset((j, 0), self.initial_value_at_height(j))
+
+
+    def initial_value_at_height(self, j):
+        return 0
+
+    def initial_value_at_top(self, i):
+        return 0
+
+    def initial_value_at_bottom(self, i):
+        return 0
