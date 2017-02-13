@@ -2,7 +2,7 @@ from floating_call import FloatingCall
 import math
 import numpy
 
-class AsianNewFloatCall(FloatingCall):
+class AsianNewVecerFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, old_average, t0)
         self.xi_initial = self.xi(self.s0, 0)
@@ -72,11 +72,11 @@ if __name__ == "__main__":
     sigma = 0.3
 
     t0 = 0.1
-    print('Expected: 9.87, Actual: ' + str(AsianNewFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
-    print('Expected: 9.35, Actual: ' + str(AsianNewFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
-    print('Expected: 8.84, Actual: ' + str(AsianNewFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
+    print('Expected: 9.87, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
+    print('Expected: 9.35, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
+    print('Expected: 8.84, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
 
     t0 = 0.7
-    print('Expected: 11.21, Actual: ' + str(AsianNewFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
-    print('Expected: 6.86, Actual: ' + str(AsianNewFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
-    print('Expected: 3.85, Actual: ' + str(AsianNewFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
+    print('Expected: 11.21, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
+    print('Expected: 6.86, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
+    print('Expected: 3.85, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))

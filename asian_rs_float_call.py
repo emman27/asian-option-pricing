@@ -67,7 +67,7 @@ class AsianRSFloatCall(FloatingCall):
         super().solve(lambda time: b_mat, lambda time: a_mat)
         return self.s0 * self.grid[self.j0, self.numt]
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Constants
     numx = 200
     numt = 400
