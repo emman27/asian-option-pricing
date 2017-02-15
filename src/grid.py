@@ -57,5 +57,8 @@ class Grid:
   def set_value_at(self, price, time, val):
     self.matrix.itemset((int(price / self.dx), int(time / self.dt)), val)
 
+  def get_col(self, col):
+    return self.matrix[:, col]
+
   def __str__(self):
     return self.matrix.__str__()
