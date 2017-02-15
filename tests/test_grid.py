@@ -2,6 +2,16 @@ from .context import src
 from src.grid import Grid
 import unittest
 
+import src.asian_rs_fixed_call
+import src.asian_vecer_fixed_call
+import src.asian_dl_fixed_call
+import src.asian_new_vecer_fixed_call
+
+import src.asian_rs_float_call
+import src.asian_vecer_float_call
+import src.asian_dl_float_call
+import src.asian_new_vecer_float_call
+
 class TestGridMethods(unittest.TestCase):
     def test_grid_size(self):
         '''
