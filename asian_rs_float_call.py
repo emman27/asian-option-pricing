@@ -23,35 +23,17 @@ class AsianRSFloatCall(FloatingCall):
     def initial_value_at_height(self, row):
         return max(1 - self.maxx + row * self.dx, 0)
 
-    def alpha(self, height):
+    def alpha(self, height, time):
         return 1/2 * self.sigma**2 * (-self.numx / 2 + height)**2 * self.dx**2 / (2*self.dx**2) * self.dt
 
-    def beta(self, height):
+    def beta(self, height, time):
         return -( self.r * (-self.numx / 2 + height) * self.dx + 1 / (self.t0 + self.maxt) ) / (4 * self.dx) * self.dt
 
     def A_matrix(self):
-        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i)
-            b = self.beta(i)
-            if i - 1 >= 0:
-                A.itemset((i, i - 1), (a - b))
-            A.itemset((i, i), (1 - 2*a))
-            if i + 1 < self.numx:
-                A.itemset((i, i + 1), (a + b))
-        return A
+        return super().A_matrix(0, lambda a, b: a - b, lambda a, b: 1 - 2*a, lambda a, b: a + b)
 
     def B_matrix(self):
-        B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i)
-            b = self.beta(i)
-            if i - 1 >= 0:
-                B.itemset((i, i - 1), (a - b))
-            B.itemset((i, i), (-2 * a))
-            if i + 1 < self.numx:
-                B.itemset((i, i + 1), (a + b))
-        return B
+        return super().B_matrix(0, lambda a, b: a - b, lambda a, b: -2 * a, lambda a, b: a + b)
 
     def solve(self):
         a_mat = self.A_matrix()

@@ -38,28 +38,10 @@ class AsianDLFloatCall(FloatingCall):
         ) / (4 * self.dx) * self.dt
 
     def A_matrix(self, time):
-        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i, time)
-            b = self.beta(i, time)
-            if i - 1 >= 0:
-                A.itemset((i, i-1), a - b)
-            A.itemset((i, i), 1 - 2 * a)
-            if i + 1 < self.numx:
-                A.itemset((i, i + 1), a + b)
-        return A
+        return super().A_matrix(time, lambda a, b: a - b, lambda a, b: 1 - 2 * a, lambda a, b: a + b)
 
     def B_matrix(self, time):
-        B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i, time)
-            b = self.beta(i, time)
-            if i - 1 >= 0:
-                B.itemset((i, i-1), a - b)
-            B.itemset((i, i), -2 * a)
-            if i + 1 < self.numx:
-                B.itemset((i, i + 1), a + b)
-        return B
+        return super().B_matrix(time, lambda a, b: a - b, lambda a, b: - 2 * a, lambda a, b: a + b)
 
     def solve(self):
         super().solve(lambda time: numpy.identity(self.numx) - self.B_matrix(time), lambda time: self.A_matrix(time))

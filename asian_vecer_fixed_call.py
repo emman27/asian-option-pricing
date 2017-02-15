@@ -37,26 +37,10 @@ class AsianVecerFixedCall(FixedCall):
         ) ** 2 / (2 * self.dx ** 2) * self.dt
 
     def A_matrix(self, time):
-        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i, time)
-            if i - 1 >= 0:
-                A.itemset((i, i-1), a)
-            A.itemset((i, i), 1 - 2 * a)
-            if i + 1 < self.numx:
-                A.itemset((i, i + 1), a)
-        return A
+        return super().A_matrix(time, lambda a, b: a, lambda a, b: 1 - 2*a, lambda a, b: a)
 
     def B_matrix(self, time):
-        B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i, time)
-            if i - 1 >= 0:
-                B.itemset((i, i-1), a)
-            B.itemset((i, i), -2 * a)
-            if i + 1 < self.numx:
-                B.itemset((i, i + 1), a)
-        return B
+        return super().B_matrix(time, lambda a, b: a, lambda a, b: -2*a, lambda a, b: a)
 
     def solve(self):
         super().solve(lambda time: numpy.identity(self.numx) - self.B_matrix(time), lambda time: self.A_matrix(time))

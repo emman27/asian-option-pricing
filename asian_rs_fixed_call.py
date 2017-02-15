@@ -25,39 +25,22 @@ class AsianRSFixedCall(FixedCall):
         return -math.exp(self.r*(self.maxt - t))
 
     # Methods to calculate the abstracted alpha and beta variables. See report.
-    def alpha(self, height):
+    def alpha(self, height, time):
         return .25 * self.sigma**2 * height**2 * self.dt
 
-    def beta(self, height):
+    def beta(self, height, time):
         return (height * self.r * self.dx + 1 / self.maxt) * self.dt  / (4 * self.dx)
 
     # The relation between two columns are given by
     # (I-B) * R = A * L
     # where they follow the original relation
     # R = AL + BR. See report.
+    # Here time is set to 0 for the super() call since time is irrelevant for this option
     def A_matrix(self):
-        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i)
-            b = self.beta(i)
-            if i - 1 >= 0:
-                A.itemset((i, i - 1), (a + b))
-            A.itemset((i, i), (1 - 2*a))
-            if i + 1 < self.numx:
-                A.itemset((i, i + 1), (a - b))
-        return A
+        return super().A_matrix(0, lambda a, b: a + b, lambda a, b: 1 - 2*a, lambda a, b: a - b)
 
     def B_matrix(self):
-        B = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
-        for i in range(self.numx):
-            a = self.alpha(i)
-            b = self.beta(i)
-            if i - 1 >= 0:
-                B.itemset((i, i - 1), (a + b))
-            B.itemset((i, i), (-2 * a))
-            if i + 1 < self.numx:
-                B.itemset((i, i + 1), (a - b))
-        return B
+        return super().B_matrix(0, lambda a, b: a + b, lambda a, b: -2 * a, lambda a, b: a - b)
 
     def solve(self):
         a_mat = self.A_matrix()

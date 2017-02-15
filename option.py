@@ -59,3 +59,33 @@ class Option:
 
     def initial_value_at_bottom(self, i):
         return 0
+
+    def A_matrix(self, time, lower, curr, upper):
+        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
+        for i in range(self.numx):
+            a = self.alpha(i, time)
+            b = self.beta(i, time)
+            if i - 1 >= 0:
+                A.itemset((i, i - 1), lower(a, b))
+            A.itemset((i, i), curr(a, b))
+            if i + 1 < self.numx:
+                A.itemset((i, i + 1), upper(a, b))
+        return A
+
+    def B_matrix(self, time, lower, curr, upper):
+        A = numpy.matrix([[0] * self.numx] * self.numx, dtype = numpy.float64)
+        for i in range(self.numx):
+            a = self.alpha(i, time)
+            b = self.beta(i, time)
+            if i - 1 >= 0:
+                A.itemset((i, i - 1), lower(a, b))
+            A.itemset((i, i), curr(a, b))
+            if i + 1 < self.numx:
+                A.itemset((i, i + 1), upper(a, b))
+        return A
+
+    def alpha(self, height, time):
+        return 0
+
+    def beta(self, height, time):
+        return 0
