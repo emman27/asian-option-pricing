@@ -33,7 +33,7 @@ class AsianVecerFloatCall(FloatingCall):
         return super().B_matrix(time, lambda a, b: a, lambda a, b: -2 * a, lambda a, b: a)
 
     def solve(self):
-        super().solve(lambda time: numpy.identity(self.numx) - self.B_matrix(time), lambda time: self.A_matrix(time))
+        super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
         return self.s0 * self.grid[self.j0, self.numt]
 
 if __name__ == '__main__':

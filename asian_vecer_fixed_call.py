@@ -23,7 +23,7 @@ class AsianVecerFixedCall(FixedCall):
         return max(-self.maxx + row * self.dx, 0)
 
     def set_strange_boundary(self):
-        for row in range(self.numx):
+        for row in range(self.numx + 1):
             for col in range(1, self.numt + 1):
                 self.grid.itemset((row, col), self.strange_boundary_value())
 
@@ -43,7 +43,7 @@ class AsianVecerFixedCall(FixedCall):
         return super().B_matrix(time, lambda a, b: a, lambda a, b: -2*a, lambda a, b: a)
 
     def solve(self):
-        super().solve(lambda time: numpy.identity(self.numx) - self.B_matrix(time), lambda time: self.A_matrix(time))
+        super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
         return self.s0 * self.grid[self.j0, self.numt]
 
 if __name__ == '__main__':

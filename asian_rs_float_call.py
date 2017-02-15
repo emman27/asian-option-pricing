@@ -37,7 +37,7 @@ class AsianRSFloatCall(FloatingCall):
 
     def solve(self):
         a_mat = self.A_matrix()
-        b_mat = numpy.identity(self.numx) - self.B_matrix()
+        b_mat = numpy.identity(self.numx + 1) - self.B_matrix()
         super().solve(lambda time: b_mat, lambda time: a_mat)
         return self.s0 * self.grid[self.j0, self.numt]
 
