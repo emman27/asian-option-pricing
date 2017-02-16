@@ -4,11 +4,13 @@ import progressbar
 from asian_rs_fixed_call import AsianRSFixedCall
 from asian_vecer_fixed_call import AsianVecerFixedCall
 from asian_dl_fixed_call import AsianDLFixedCall
+from asian_new_fixed_call import AsianNewFixedCall
 from asian_new_vecer_fixed_call import AsianNewVecerFixedCall
 
 from asian_rs_float_call import AsianRSFloatCall
 from asian_vecer_float_call import AsianVecerFloatCall
 from asian_dl_float_call import AsianDLFloatCall
+from asian_new_float_call import AsianNewFloatCall
 from asian_new_vecer_float_call import AsianNewVecerFloatCall
 
 if __name__ == "__main__":
@@ -20,7 +22,7 @@ if __name__ == "__main__":
     S0 = 100
     SIGMAS = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
     STRIKES = [90, 95, 100, 105, 110]
-    METHODS = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
+    METHODS = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewFixedCall, AsianNewVecerFixedCall]
     BENCHMARKS = [
         [13.38, 8.81, 4.31, 0.96, 0.05],
         [13.39, 8.91, 4.92, 2.07, 0.63],
@@ -30,7 +32,7 @@ if __name__ == "__main__":
         [18.19, 15.44, 13.03, 10.93, 9.12],
         [19.96, 17.41, 15.13, 13.11, 11.34]
     ]
-    HEADERS = ['Volatility', 'Strike', 'Benchmark', 'Rogers-Shi', 'Vecer', 'Dubois Lelievre', 'New-Vecer']
+    HEADERS = ['Volatility', 'Strike', 'Benchmark', 'Rogers-Shi', 'Vecer', 'Dubois Lelievre', 'New', 'New-Vecer']
 
 
     # FLoating strike constants
@@ -39,8 +41,8 @@ if __name__ == "__main__":
     SIGMAS_FLOAT = [0.3, 0.5]
     T0S = [0.1, 0.3, 0.5, 0.7, 0.9]
     CURRENT_AVERAGES = [90, 100, 110]
-    METHODS_FLOAT = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewVecerFloatCall]
-    HEADERS_FLOAT = ['Volatility', 't0', 'Average', 'Benchmark', 'Rogers-Shi', 'Vecer', 'Dubois Lelievre', 'New']
+    METHODS_FLOAT = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewFloatCall, AsianNewVecerFloatCall]
+    HEADERS_FLOAT = ['Volatility', 't0', 'Average', 'Benchmark', 'Rogers-Shi', 'Vecer', 'Dubois Lelievre', 'New', 'New-Vecer']
     BENCHMARKS_FLOAT = [
         [
             [9.86, 9.35, 8.85],

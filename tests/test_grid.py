@@ -9,11 +9,13 @@ from src.floating_call import FloatingCall
 from src.asian_rs_fixed_call import AsianRSFixedCall
 from src.asian_vecer_fixed_call import AsianVecerFixedCall
 from src.asian_dl_fixed_call import AsianDLFixedCall
+from src.asian_new_fixed_call import AsianNewFixedCall
 from src.asian_new_vecer_fixed_call import AsianNewVecerFixedCall
 
 from src.asian_rs_float_call import AsianRSFloatCall
 from src.asian_vecer_float_call import AsianVecerFloatCall
 from src.asian_dl_float_call import AsianDLFloatCall
+from src.asian_new_float_call import AsianNewFloatCall
 from src.asian_new_vecer_float_call import AsianNewVecerFloatCall
 
 
@@ -35,8 +37,8 @@ class TestOptions(unittest.TestCase):
 
     def test_max_xi_positive(self):
         # Options to test
-        fixed = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
-        floating = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewVecerFloatCall]
+        fixed = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewFixedCall, AsianNewVecerFixedCall]
+        floating = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewFloatCall, AsianNewVecerFloatCall]
 
         for option in fixed:
             for s in SIGMAS:
@@ -57,6 +59,7 @@ class TestOptions(unittest.TestCase):
             for s in SIGMAS:
                 for k in STRIKES:
                     self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).xi_initial, 0, msg=str(option))
+        self.assertGreaterEqual(0, AsianNewFixedCall(MAXT, NUMX, NUMT, R, s, S0, k).xi_initial, msg=str(option))
         for option in floating:
             for s in SIGMAS_FLOAT:
                 for t0 in T0S:
@@ -80,16 +83,18 @@ class TestOptions(unittest.TestCase):
                 return CONST_B
         opt = TestOption(MAXT, NUMX, NUMT, R, 0.3, S0, 100, 0.1)
         a = opt.A_matrix(1, lambda a, b: a, lambda a, b: b, lambda a, b: a + b)
-        for i in range(len(a)):
-            for j in range(len(a[i, :])):
-                if i - 1 == j:
-                    self.assertEqual(a[i, j], CONST_A)
-                elif i == j:
-                    self.assertEqual(a[i, j], CONST_B)
-                elif i + 1 == j:
-                    self.assertEqual(a[i, j], CONST_A + CONST_B)
-                else:
-                    self.assertEqual(a[i, j], 0)
+        b = opt.B_matrix(1, lambda a, b: a, lambda a, b: b, lambda a, b: a + b)
+        for mat in (a, b):
+            for i in range(len(mat)):
+                for j in range(len(mat[i, :])):
+                    if i - 1 == j:
+                        self.assertEqual(mat[i, j], CONST_A)
+                    elif i == j:
+                        self.assertEqual(mat[i, j], CONST_B)
+                    elif i + 1 == j:
+                        self.assertEqual(mat[i, j], CONST_A + CONST_B)
+                    else:
+                        self.assertEqual(mat[i, j], 0)
 
 
 if __name__ == '__main__':
