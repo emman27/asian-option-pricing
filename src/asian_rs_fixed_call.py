@@ -8,6 +8,7 @@ class AsianRSFixedCall(FixedCall):
         self.j0 = round(numx/3)
         self.xi_initial = self.xi(self.s0, 0)
         self.dx = self.strike / self.s0 / self.j0
+        self.maxx = numx * self.dx
         self.set_boundary_conditions()
 
     def initial_value_at_bottom(self, time):

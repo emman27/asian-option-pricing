@@ -1,57 +1,46 @@
 from .context import src
-from src.grid import Grid
 import unittest
 
-import src.asian_rs_fixed_call
-import src.asian_vecer_fixed_call
-import src.asian_dl_fixed_call
-import src.asian_new_vecer_fixed_call
+from src.asian_rs_fixed_call import AsianRSFixedCall
+from src.asian_vecer_fixed_call import AsianVecerFixedCall
+from src.asian_dl_fixed_call import AsianDLFixedCall
+from src.asian_new_vecer_fixed_call import AsianNewVecerFixedCall
 
-import src.asian_rs_float_call
-import src.asian_vecer_float_call
-import src.asian_dl_float_call
-import src.asian_new_vecer_float_call
+from src.asian_rs_float_call import AsianRSFloatCall
+from src.asian_vecer_float_call import AsianVecerFloatCall
+from src.asian_dl_float_call import AsianDLFloatCall
+from src.asian_new_vecer_float_call import AsianNewVecerFloatCall
 
-class TestGridMethods(unittest.TestCase):
-    def test_grid_size(self):
-        '''
-        Ensures that matrices are created with the correct dimensions
-        '''
-        grid = Grid(1, 1, 100, 99)
-        self.assertEqual(100, grid.get_raw_matrix().shape[0])
-        self.assertEqual(99, grid.get_raw_matrix().shape[1])
+FIXED = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
+FLOATING = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewVecerFloatCall]
 
-    def test_get_value(self):
-        '''
-        Ensures that the retrieval method of Grid works
-        '''
-        grid = Grid(1, 1, 50, 50)
-        self.assertEqual(0, grid.get_value(0, 34))
+NUMX = 400
+NUMT = 400
+MAXT = 1
+R = 0.09
+S0 = 100
+SIGMAS = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+STRIKES = [90, 95, 100, 105, 110]
 
-    def test_set_value(self):
-        '''
-        Ensures that can correctly set a value. Dependent on get_value to work as well
-        '''
-        grid = Grid(1, 1, 10, 10)
-        grid.set_value(3, 3, 22)
-        self.assertEqual(22, grid.get_value(3, 3))
+R_FLOAT = 0.1
+S0_FLOAT = 100
+SIGMAS_FLOAT = [0.3, 0.5]
+T0S = [0.1, 0.3, 0.5, 0.7, 0.9]
+CURRENT_AVERAGES = [90, 100, 110]
 
-    def test_out_of_bounds_value(self):
-        '''
-        Ensures that an Exception is raised if the retrieval is invalid
-        '''
-        grid = Grid(1, 1, 1, 1)
-        with self.assertRaises(IndexError):
-            grid.get_value(1, 1)
+class TestOptions(unittest.TestCase):
 
-    def test_get_column(self):
-        grid = Grid(1, 1, 2, 2)
-        grid.set_value(0, 0, 1)
-        grid.set_value(1, 0, 1)
-        self.assertEqual([[1], [1]], list(grid.get_col(0)))
+    def test_max_xi_positive(self):
+        for option in FIXED:
+            for s in SIGMAS:
+                for k in STRIKES:
+                    self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).maxx, 0)
+        for option in FLOATING:
+            for s in SIGMAS_FLOAT:
+                for t0 in T0S:
+                    for avr in CURRENT_AVERAGES:
+                        self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).maxx, 0, msg=str(option))
 
-    def test_set_column(self):
-        pass
 
 if __name__ == '__main__':
     unittest.main()

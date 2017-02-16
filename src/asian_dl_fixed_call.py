@@ -8,6 +8,7 @@ class AsianDLFixedCall(FixedCall):
         self.xi_initial = self.xi(self.s0, 0)
         self.j0 = round(numx/3)
         self.dx = self.xi_initial / self.j0
+        self.maxx = self.dx * self.numx
         self.set_boundary_conditions()
 
     def a(self, t):
