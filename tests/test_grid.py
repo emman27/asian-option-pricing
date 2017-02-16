@@ -1,5 +1,10 @@
-from .context import src
 import unittest
+from .context import src
+
+from src.option import Option
+
+from src.fixed_call import FixedCall
+from src.floating_call import FloatingCall
 
 from src.asian_rs_fixed_call import AsianRSFixedCall
 from src.asian_vecer_fixed_call import AsianVecerFixedCall
@@ -44,7 +49,7 @@ class TestOptions(unittest.TestCase):
                         self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).maxx, 0, msg=str(option))
 
     def test_xi_initial_within_range(self):
-        # Options to test
+        # Options to test. No restrictions on other options
         fixed = [AsianRSFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
         floating = [AsianNewVecerFloatCall]
 
@@ -57,6 +62,34 @@ class TestOptions(unittest.TestCase):
                 for t0 in T0S:
                     for avr in CURRENT_AVERAGES:
                         self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).xi_initial, 0, msg=str(option))
+
+    def test_initializers(self):
+        fixed = FixedCall(MAXT, NUMX, NUMT, R, .3, S0, 100)
+        self.assertEqual(fixed.t0, 0)
+        self.assertEqual(fixed.old_average, 0)
+
+    def test_tridiagonal(self):
+        CONST_A = 1
+        CONST_B = 2
+        class TestOption(Option):
+            def __init__(self, maxt, numx, numt, r, sigma, s0, avr, t0):
+                super().__init__(maxt, numx, numt, r, sigma, s0, avr, t0)
+            def alpha(self, i, j):
+                return CONST_A
+            def beta(self, i, j):
+                return CONST_B
+        opt = TestOption(MAXT, NUMX, NUMT, R, 0.3, S0, 100, 0.1)
+        a = opt.A_matrix(1, lambda a, b: a, lambda a, b: b, lambda a, b: a + b)
+        for i in range(len(a)):
+            for j in range(len(a[i, :])):
+                if i - 1 == j:
+                    self.assertEqual(a[i, j], CONST_A)
+                elif i == j:
+                    self.assertEqual(a[i, j], CONST_B)
+                elif i + 1 == j:
+                    self.assertEqual(a[i, j], CONST_A + CONST_B)
+                else:
+                    self.assertEqual(a[i, j], 0)
 
 
 if __name__ == '__main__':

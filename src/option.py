@@ -48,16 +48,6 @@ class Option:
         for j in range(self.numx + 1):
             self.grid.itemset((j, 0), self.initial_value_at_height(j))
 
-
-    def initial_value_at_height(self, j):
-        return 0
-
-    def initial_value_at_top(self, i):
-        return 0
-
-    def initial_value_at_bottom(self, i):
-        return 0
-
     def A_matrix(self, time, lower, curr, upper):
         A = numpy.matrix([[0] * (self.numx + 1)] * (self.numx + 1), dtype = numpy.float64)
         for i in range(self.numx):
@@ -82,8 +72,27 @@ class Option:
                 A.itemset((i, i + 1), upper(a, b))
         return A
 
+    # Stub methods
     def alpha(self, height, time):
         return 0
 
     def beta(self, height, time):
+        return 0
+
+    def a(self, t):
+        return 0
+
+    def b(self, t):
+        return 0
+
+    def initial_value_at_height(self, j):
+        return 0
+
+    def initial_value_at_top(self, i):
+        return 0
+
+    def initial_value_at_bottom(self, i):
+        return 0
+
+    def xi(self, s, t):
         return 0
