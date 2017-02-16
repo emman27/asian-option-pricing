@@ -13,7 +13,7 @@ from asian_new_vecer_float_call import AsianNewVecerFloatCall
 
 if __name__ == "__main__":
     # Fixed Strike Constants
-    NUMX = 400
+    NUMX = 200
     NUMT = 400
     MAXT = 1
     R = 0.09

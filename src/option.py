@@ -42,7 +42,7 @@ class Option:
 
     def set_top_boundary(self):
         for i in range(self.numt + 1):
-            self.grid.itemset((self.numx, i), self.initial_value_at_bottom(i))
+            self.grid.itemset((self.numx, i), self.initial_value_at_top(i))
 
     def set_initial_boundary(self):
         for j in range(self.numx + 1):

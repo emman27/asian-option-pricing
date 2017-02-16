@@ -11,8 +11,6 @@ from src.asian_vecer_float_call import AsianVecerFloatCall
 from src.asian_dl_float_call import AsianDLFloatCall
 from src.asian_new_vecer_float_call import AsianNewVecerFloatCall
 
-FIXED = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
-FLOATING = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewVecerFloatCall]
 
 NUMX = 400
 NUMT = 400
@@ -31,15 +29,34 @@ CURRENT_AVERAGES = [90, 100, 110]
 class TestOptions(unittest.TestCase):
 
     def test_max_xi_positive(self):
-        for option in FIXED:
+        # Options to test
+        fixed = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
+        floating = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewVecerFloatCall]
+
+        for option in fixed:
             for s in SIGMAS:
                 for k in STRIKES:
-                    self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).maxx, 0)
-        for option in FLOATING:
+                    self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).maxx, 0, msg=str(option))
+        for option in floating:
             for s in SIGMAS_FLOAT:
                 for t0 in T0S:
                     for avr in CURRENT_AVERAGES:
                         self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).maxx, 0, msg=str(option))
+
+    def test_xi_initial_within_range(self):
+        # Options to test
+        fixed = [AsianRSFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
+        floating = [AsianNewVecerFloatCall]
+
+        for option in fixed:
+            for s in SIGMAS:
+                for k in STRIKES:
+                    self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).xi_initial, 0, msg=str(option))
+        for option in floating:
+            for s in SIGMAS_FLOAT:
+                for t0 in T0S:
+                    for avr in CURRENT_AVERAGES:
+                        self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).xi_initial, 0, msg=str(option))
 
 
 if __name__ == '__main__':
