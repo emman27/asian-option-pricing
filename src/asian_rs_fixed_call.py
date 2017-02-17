@@ -6,7 +6,6 @@ class AsianRSFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
         self.j0 = round(numx/3)
-        self.xi_initial = self.xi(self.s0, 0)
         self.dx = self.strike / self.s0 / self.j0
         self.maxx = numx * self.dx
         self.set_boundary_conditions()

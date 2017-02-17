@@ -5,7 +5,6 @@ import numpy
 class AsianNewVecerFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
-        self.xi_initial = self.xi(self.s0, 0)
         self.j0 = round(self.numx/3)
         self.dx = self.xi_initial / self.j0
         self.maxx = self.dx * (self.numx - 1)

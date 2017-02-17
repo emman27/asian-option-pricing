@@ -5,7 +5,6 @@ import numpy
 class AsianNewVecerFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, old_average, t0)
-        self.xi_initial = self.xi(self.s0, 0)
         self.j0 = round(numx/3)
         self.dx = self.xi_initial / self.j0
         self.maxx = self.dx * self.numx
