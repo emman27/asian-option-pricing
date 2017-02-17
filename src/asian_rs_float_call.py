@@ -40,17 +40,17 @@ class AsianRSFloatCall(FloatingCall):
         super().solve(lambda time: b_mat, lambda time: a_mat)
         return self.s0 * self.grid[self.j0, self.numt]
 
-if __name__ == '__main__':
-    # Constants
-    numx = 200
-    numt = 400
-    maxt = 1
-    r = 0.1
-    s0 = 100
-    sigma = 0.3
+# if __name__ == '__main__':
+#     # Constants
+#     numx = 200
+#     numt = 400
+#     maxt = 1
+#     r = 0.1
+#     s0 = 100
+#     sigma = 0.3
 
-    t0 = 0.1
-    print('Expected: 9.87, Actual: ' + str(AsianRSFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
+#     t0 = 0.1
+#     print('Expected: 9.87, Actual: ' + str(AsianRSFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
     # print('Expected: 9.34, Actual: ' + str(AsianRSFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
     # print('Expected: 8.85, Actual: ' + str(AsianRSFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
     #

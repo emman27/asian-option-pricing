@@ -43,15 +43,15 @@ class AsianNewVecerFixedCall(FixedCall):
         super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
         return self.avr(self.s0, 0) * self.grid[self.j0, self.numt]
 
-if __name__ == '__main__':
-    # Constants
-    numx = 200
-    numt = 400
-    maxt = 1
-    r = 0.09
-    s0 = 100
+# if __name__ == '__main__':
+#     # Constants
+#     numx = 200
+#     numt = 400
+#     maxt = 1
+#     r = 0.09
+#     s0 = 100
 
-    sigma = 0.05
+#     sigma = 0.05
     # print('Expected: 13.07, Actual: ' + str(AsianNewVecerFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
     # print('Expected: 7.81, Actual: ' + str(AsianNewVecerFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
     # print('Expected: 3.91, Actual: ' + str(AsianNewVecerFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))

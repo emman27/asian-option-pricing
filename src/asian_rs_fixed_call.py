@@ -56,13 +56,13 @@ class AsianRSFixedCall(FixedCall):
             for row in range(1, self.numx + 1):
                 self.grid.itemset((row, col + 1), new[row])
 # Constants
-numx = 200
-numt = 400
-maxt = 1
-r = 0.09
-s0 = 100
+# numx = 200
+# numt = 400
+# maxt = 1
+# r = 0.09
+# s0 = 100
 
-sigma = 0.05
+# sigma = 0.05
 # print('Expected: 13.07, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
 # print('Expected: 7.82, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
 # print('Expected: 3.91, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
