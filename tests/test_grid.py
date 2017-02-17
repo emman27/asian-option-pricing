@@ -139,5 +139,16 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(fix.avr(0), fix.q(0) * S0 + math.exp(-R * MAXT) * 0)
         self.assertEqual(flt.avr(0), flt.q(0) * S0 + math.exp(-R * MAXT) * T0S[0] * CURRENT_AVERAGES[0] / (T0S[0] + MAXT))
 
+    def test_stubs(self):
+        opt = Option(MAXT, NUMX, NUMT, R, 0.3, S0, 100, 0.1)
+        self.assertEqual(opt.alpha(3, 7), 0)
+        self.assertEqual(opt.beta(3, 7), 0)
+        self.assertEqual(opt.a(2), 0)
+        self.assertEqual(opt.b(3), 0)
+        self.assertEqual(opt.initial_value_at_top(124), 0)
+        self.assertEqual(opt.initial_value_at_bottom(124), 0)
+        self.assertEqual(opt.initial_value_at_height(124), 0)
+        self.assertEqual(opt.xi(124, 32), 0)
+
 if __name__ == '__main__':
     unittest.main()
