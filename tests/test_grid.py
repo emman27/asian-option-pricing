@@ -1,4 +1,6 @@
 import unittest
+import math
+
 from .context import src
 
 from src.option import Option
@@ -33,9 +35,12 @@ SIGMAS_FLOAT = [0.3, 0.5]
 T0S = [0.1, 0.3, 0.5, 0.7, 0.9]
 CURRENT_AVERAGES = [90, 100, 110]
 
+fix = FixedCall(MAXT, NUMX, NUMT, R, SIGMAS[0], S0, STRIKES[0])
+flt = FloatingCall(MAXT, NUMX, NUMT, R, SIGMAS[0], S0, CURRENT_AVERAGES[0], T0S[0])
+
 class TestOptions(unittest.TestCase):
 
-    def test_max_xi_positive(self):
+    def test_max_xi_and_dx_positive(self):
         # Options to test
         fixed = [AsianRSFixedCall, AsianVecerFixedCall, AsianDLFixedCall, AsianNewFixedCall, AsianNewVecerFixedCall]
         floating = [AsianRSFloatCall, AsianVecerFloatCall, AsianDLFloatCall, AsianNewFloatCall, AsianNewVecerFloatCall]
@@ -43,33 +48,63 @@ class TestOptions(unittest.TestCase):
         for option in fixed:
             for s in SIGMAS:
                 for k in STRIKES:
-                    self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).maxx, 0, msg=str(option))
+                    opt = option(MAXT, NUMX, NUMT, R, s, S0, k)
+                    self.assertGreaterEqual(opt.maxx, 0, msg=str(option))
+                    self.assertGreaterEqual(opt.dx, 0)
         for option in floating:
             for s in SIGMAS_FLOAT:
                 for t0 in T0S:
                     for avr in CURRENT_AVERAGES:
-                        self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).maxx, 0, msg=str(option))
+                        opt = option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0)
+                        self.assertGreaterEqual(opt.maxx, 0, msg=str(option))
+                        self.assertGreaterEqual(opt.dx, 0)
 
-    def test_xi_initial_within_range(self):
+    def test_xi_initial_and_j0(self):
         # Options to test. No restrictions on other options
         fixed = [AsianRSFixedCall, AsianDLFixedCall, AsianNewVecerFixedCall]
         floating = [AsianNewVecerFloatCall]
+        the_rest_fixed = [AsianVecerFixedCall, AsianNewFixedCall]
+        the_rest_floating = [AsianRSFloatCall, AsianDLFloatCall, AsianNewVecerFloatCall]
 
         for option in fixed:
             for s in SIGMAS:
                 for k in STRIKES:
-                    self.assertGreaterEqual(option(MAXT, NUMX, NUMT, R, s, S0, k).xi_initial, 0, msg=str(option))
+                    call = option(MAXT, NUMX, NUMT, R, s, S0, k)
+                    self.assertGreaterEqual(call.xi_initial, 0, msg=str(option))
+                    self.assertEqual(round(call.xi_initial, 4), round(call.j0 * call.dx,4), msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0))
         self.assertGreaterEqual(0, AsianNewFixedCall(MAXT, NUMX, NUMT, R, s, S0, k).xi_initial, msg=str(option))
         for option in floating:
             for s in SIGMAS_FLOAT:
                 for t0 in T0S:
                     for avr in CURRENT_AVERAGES:
-                        self.assertGreaterEqual(option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0).xi_initial, 0, msg=str(option))
+                        call = option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0)
+                        self.assertGreaterEqual(call.xi_initial, 0, msg=str(option))
+                        self.assertEqual(round(call.xi_initial, 4), round(call.j0 * call.dx,4), msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0))
+        for option in the_rest_fixed:
+            for s in SIGMAS:
+                for k in STRIKES:
+                    call = option(MAXT, NUMX, NUMT, R, s, S0, k)
+                    self.assertGreaterEqual(call.xi_initial, -call.maxx, msg=str(option))
+                    self.assertGreaterEqual(call.maxx, call.xi_initial, msg=str(option))
+                    self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4) - call.maxx)), .01, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
+        for option in the_rest_floating:
+            for s in SIGMAS_FLOAT:
+                for t0 in T0S:
+                    for avr in CURRENT_AVERAGES:
+                        self.assertGreaterEqual(call.xi_initial, -call.maxx, msg=str(option))
+                        self.assertGreaterEqual(call.maxx, call.xi_initial, msg=str(option))
+                        self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4) - call.maxx)), .01, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
+
 
     def test_initializers(self):
         fixed = FixedCall(MAXT, NUMX, NUMT, R, .3, S0, 100)
         self.assertEqual(fixed.t0, 0)
         self.assertEqual(fixed.old_average, 0)
+
+        fl = FloatingCall(MAXT - 0.1, NUMX, NUMT, R, .3, S0, 100, 0.1)
+        self.assertEqual(fl.t0, 0.1)
+        self.assertEqual(fl.old_average, 100)
+        self.assertEqual(fl.maxt, 0.9)
 
     def test_tridiagonal(self):
         CONST_A = 1
@@ -96,6 +131,13 @@ class TestOptions(unittest.TestCase):
                     else:
                         self.assertEqual(mat[i, j], 0)
 
+    def test_q(self):
+        self.assertEqual(fix.q(0), (1 - math.exp(-R * (MAXT - 0))) / (R * MAXT))
+        self.assertEqual(flt.q(0), (1 - math.exp(-R * (MAXT - 0))) / (R * (T0S[0] + MAXT)))
+
+    def test_average(self):
+        self.assertEqual(fix.avr(0), fix.q(0) * S0 + math.exp(-R * MAXT) * 0)
+        self.assertEqual(flt.avr(0), flt.q(0) * S0 + math.exp(-R * MAXT) * T0S[0] * CURRENT_AVERAGES[0] / (T0S[0] + MAXT))
 
 if __name__ == '__main__':
     unittest.main()
