@@ -71,7 +71,7 @@ if __name__ == "__main__":
             results = [sigma, strike]
             results.append(BENCHMARKS[j][i])
             for method in METHODS:
-                results.append(round(method(MAXT, NUMX, NUMT, R, sigma, S0, strike).solve(), 2))
+                results.append(round(method(MAXT, NUMX, NUMT, R_FLOAT, sigma, S0, strike).solve(), 2))
                 k += 1
                 bar.update(k)
             output.append(results)
