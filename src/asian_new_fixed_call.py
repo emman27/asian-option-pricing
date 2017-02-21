@@ -43,7 +43,7 @@ class AsianNewFixedCall(FixedCall):
             for row in range(self.numx):
                 self.grid.itemset((row, col + 1), new[row])
 
-# if __name__ == '__main__':
+# if __name__ == "__main__":
 #     # Constants
 #     numx = 200
 #     numt = 400
