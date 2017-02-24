@@ -5,7 +5,7 @@ import numpy
 class AsianNewVecerFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, old_average, t0)
-        self.maxx = self.xi_initial * 3
+        self.maxx = self.xi_initial * 5
         self.dx = self.maxx / self.numx
         self.j0 = round(self.xi_initial / self.dx)
         self.set_boundary_conditions()
@@ -21,7 +21,7 @@ class AsianNewVecerFloatCall(FloatingCall):
 
     def alpha(self, height, time):
         return .5 * self.sigma**2 * (height * self.dx)**2 * (
-            (1 - math.exp(-self.r * (height + 0.5) * self.dt)) /
+            (1 - math.exp(-self.r * (time + 0.5) * self.dt)) /
             (self.r * (self.t0 + self.maxt)) *
             height * self.dx -
             1
@@ -34,8 +34,16 @@ class AsianNewVecerFloatCall(FloatingCall):
         return super().B_matrix(time, lambda a, b: a, lambda a, b: - 2 * a, lambda a, b: a)
 
     def solve(self):
-        super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
+        self.fake_super_solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
         return self.s0 * self.grid[self.j0, self.numt]
+
+    def fake_super_solve(self, left_multiplier, right_multiplier):
+        for col in range(self.numt):
+            l = self.grid[:, col]
+            r = self.grid[:, col + 1]
+            new = numpy.linalg.solve(left_multiplier(col), right_multiplier(col) * l)
+            for row in range(self.numx):
+                self.grid.itemset((row, col + 1), new[row])
 
 # if __name__ == "__main__":
 #     # Constants
