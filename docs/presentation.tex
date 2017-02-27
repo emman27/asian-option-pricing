@@ -305,7 +305,7 @@
     We convert to the matrix form required for the Implicit Difference Scheme used. Truncating the rows where \(j=0\) and \(j=m\), we have
 
     \begin{equation}
-      \textbf{r} = \textbf{Al} + \textbf{Br} + \textbf{k},
+      \textbf{r} = \textbf{Al} + \textbf{Br},
     \end{equation}
 
     where
@@ -316,6 +316,13 @@
     \begin{equation}
       \textbf{r} = u_i+1,
     \end{equation}
+    
+    rearranged to yield
+    
+    \begin{equation}
+      \textbf{(I-B)}\textbf{r} = \textbf{Al}
+    \end{equation}
+
   \end{frame}
 
   \begin{frame}
@@ -323,30 +330,21 @@
     \tiny
     \begin{equation}
       \textbf{A} = \begin{bmatrix}
-        1-2\alpha(1) & \alpha(1) - \beta(1) & 0 & 0 & \hdots & 0 \\
-        \alpha(2) + \beta(2) & 1-2\alpha(2) & \alpha(2) - \beta(2) & 0 & \hdots & 0 \\
-        0 & \alpha(3) + \beta(3) & 1-2\alpha(3) & \alpha(3) - \beta(3) & \hdots & 0 \\
+        1-2\alpha(0) & \alpha(0) - \beta(0) & 0 & 0 & \hdots & 0 \\
+        \alpha(1) + \beta(1) & 1-2\alpha(1) & \alpha(1) - \beta(1) & 0 & \hdots & 0 \\
+        0 & \alpha(2) + \beta(2) & 1-2\alpha(2) & \alpha(2) - \beta(2) & \hdots & 0 \\
         \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
-        0 & 0 & 0 & 0 & \hdots & 1-2\alpha(m-1)
+        0 & 0 & 0 & 0 & \hdots & 1-2\alpha(m)
       \end{bmatrix},
     \end{equation}
     \begin{equation}
       \textbf{B} = \begin{bmatrix}
-        -2\alpha(1) & \alpha(1) - \beta(1) & 0 & 0 & \hdots & 0 \\
-        \alpha(2) + \beta(2) & -2\alpha(2) & \alpha(2) - \beta(2) & 0 & \hdots & 0 \\
-        0 & \alpha(3) + \beta(3) & -2\alpha(3) & \alpha(3) - \beta(3) & \hdots & 0 \\
+        -2\alpha(0) & \alpha(0) - \beta(0) & 0 & 0 & \hdots & 0 \\
+        \alpha(1) + \beta(1) & -2\alpha(1) & \alpha(1) - \beta(1) & 0 & \hdots & 0 \\
+        0 & \alpha(2) + \beta(2) & -2\alpha(2) & \alpha(2) - \beta(2) & \hdots & 0 \\
         \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
-        0 & 0 & 0 & 0 & \hdots & -2\alpha(m-1)
-      \end{bmatrix},
-    \end{equation}
-    \begin{equation}
-      \textbf{k} = \begin{bmatrix}
-        (\alpha(1) + \beta(1))u_{i, 0} + (\alpha(1) + \beta(1))u_{i+1, 0} \\
-        0 \\
-        \vdots \\
-        0 \\
-        (\alpha(m-1) - \beta(m-1))u_{i, m} + (\alpha(m-1) + \beta(m-1))u_{i+1, m}
-      \end{bmatrix}
+        0 & 0 & 0 & 0 & \hdots & -2\alpha(m)
+      \end{bmatrix}.
     \end{equation}
   \end{frame}
 
