@@ -1,6 +1,7 @@
 \documentclass{beamer}
 \usetheme{Madrid}
 \usepackage{mathtools}
+\usepackage{graphicx}
 
 \title{Asian Option Pricing through Finite Difference Schemes}
 \author{Emmanuel Goh}
@@ -20,7 +21,7 @@
   \section{Recap}
   \begin{frame}
     \frametitle{Recap}
-    The purpose of this project was to model 4 different Partial Differential Equations governing the price of Asian Options, based on a previous paper which highlighted certain similarities between the different equations
+    The purpose of this project was to model 5 different Partial Differential Equations governing the price of Asian Options, based on a previous paper which highlighted certain similarities between the different equations
   \end{frame}
 
   \section{Definitions}
@@ -33,8 +34,8 @@
       Stock Price & \(S\) \\
       Strike Price & \(K\)\\
       Average Price & \(A\) \\
-      Lifespan of the Option & \(T\) \\
-      Initial time & \(t_0\) \\
+      Time ago which averaging started & \(t_0\) \\
+      Remaining lifespan of the Option & \(T\) \\
       Risk Free Rate & \(r\) \\
       Dividend Rate & \(\delta\) \\
       \hline
@@ -53,7 +54,11 @@
 
     We also define
     \begin{equation}
-      \xi_t = a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}}.
+      \xi_t = 
+      \begin{dcases*}
+        a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}} & Fixed calls (in general) \\
+        a(t) + b(t) \frac{A_t}{S_t} & Floating calls (in general)
+      \end{dcases*}
     \end{equation}
   \end{frame}
 
@@ -63,7 +68,7 @@
     \begin{equation}
       q(t) =
       \begin{dcases*}
-        1 - e^{-(r-\delta)(T-t)} & \(r \neq \delta\) \\
+        \frac{1 - e^{-(r-\delta)(T-t)}}{(r-\delta)(t_0 + T)} & \(r \neq \delta\) \\
         \frac{T-t}{t_0 + T} & \(r\) = \(\delta\)
       \end{dcases*},
     \end{equation}
@@ -118,6 +123,95 @@
       \end{tabular}
       \caption{Different Boundary Conditions}
     \end{table}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Choices of \(a(t)\) and \(b(t)\)}
+    \begin{table}[h]
+      \begin{tabular}{|c|c|c|}
+      \hline
+      Equation & \(a(t)\) & \(b(t)\) \\
+      \hline
+      Rogers-Shi & \(-q(t)b(t)\) & \(-e^{(r-\delta)(T-t)}\) \\
+      Vecer & 0 & 1 \\
+      Dubois-Lelievre & \(\frac{t}{t_0 + T} - q(t)b(t) \) & \(-e^{(r-\delta)(T-t)}\) \\
+      New & \(-q(t)b(t)\) & 1 \\
+      \hline
+      \end{tabular}
+    \end{table}
+  \end{frame}
+  
+  \section{Generalization in Implementation}
+  \begin{frame}
+    \frametitle{Generalization}
+    \begin{itemize}
+     \item Inheritance from a generic \texttt{Option} class
+     \item Polymorphism of similar methods
+    \end{itemize}
+    \includegraphics[width=\textwidth]{class_diagram}
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{Option class}
+    \begin{itemize}
+      \item State Variables
+      \begin{itemize}
+        \item \(T\)
+        \item Number of points for \(\xi\)
+        \item Number of points for \(t\)
+        \item \(r\)
+        \item \(\sigma\)
+        \item \(S_0\)
+        \item \(A\)
+        \item \(t_0\)
+        \item \(\Delta t\)
+      \end{itemize}
+    \end{itemize}
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{Option class}
+    \begin{itemize}
+      \item Implemented Methods
+      \begin{itemize}
+        \item \(q(t)\)
+        \item \(A_t\)
+        \item \texttt{set\_boundary\_conditions}
+        \item \texttt{set\_bottom\_boundary}
+        \item \texttt{set\_top\_boundary}
+        \item \texttt{set\_initial\_boundary}
+        \item \texttt{A\_matrix}
+        \item \texttt{B\_matrix}
+        \item \texttt{solve}
+      \end{itemize}
+    \end{itemize}
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{Option class}
+    \begin{itemize}
+      \item Abstract methods
+      \begin{itemize}
+        \item \texttt{alpha}
+        \item \texttt{beta}
+        \item \( a(t) \)
+        \item \( b(t) \)
+        \item \texttt{initial\_value\_at\_top}
+        \item \texttt{initial\_value\_at\_bottom}
+        \item \texttt{initial\_value\_at\_height}
+        \item \(\xi_t\)
+      \end{itemize}
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Important sub-classes}
+    Both the following key classes implement \(\xi_t\), and in the fixed call case, keeps the strike as a state variable.
+    \begin{itemize}
+      \item \texttt{FixedCall}
+      \item \texttt{FloatingCall}
+    \end{itemize}
+    Since then most of the methods are inherited from the base \texttt{Option} class, each method of pricing is only requred to implement the abstract methods as applicable, i.e. each PDE can be implemented in as few as 30 lines of code.
   \end{frame}
 
   \section{Rogers-Shi equation for Fixed Strike Asian Calls}
