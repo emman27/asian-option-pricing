@@ -2,6 +2,14 @@
 \usetheme{Madrid}
 \usepackage{mathtools}
 \usepackage{graphicx}
+\usepackage[scaled]{beramono}
+\usepackage{listings}
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
 
 \title{Asian Option Pricing through Finite Difference Schemes}
 \author{Emmanuel Goh}
@@ -50,11 +58,11 @@
     The average price of a stock is given by
     \begin{equation}
       A_T = \frac{t_0A + \int_0^T S_t \mathrm{d}t}{t_0 + T}.
-    \end{equation}.
+    \end{equation}
 
     We also define
     \begin{equation}
-      \xi_t = 
+      \xi_t =
       \begin{dcases*}
         a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}} & Fixed calls (in general) \\
         a(t) + b(t) \frac{A_t}{S_t} & Floating calls (in general)
@@ -140,7 +148,7 @@
       \end{tabular}
     \end{table}
   \end{frame}
-  
+
   \section{Generalization in Implementation}
   \begin{frame}
     \frametitle{Generalization}
@@ -150,7 +158,7 @@
     \end{itemize}
     \includegraphics[width=\textwidth]{class_diagram}
   \end{frame}
-  
+
   \begin{frame}
     \frametitle{Option class}
     \begin{itemize}
@@ -168,7 +176,7 @@
       \end{itemize}
     \end{itemize}
   \end{frame}
-  
+
   \begin{frame}
     \frametitle{Option class}
     \begin{itemize}
@@ -186,7 +194,7 @@
       \end{itemize}
     \end{itemize}
   \end{frame}
-  
+
   \begin{frame}
     \frametitle{Option class}
     \begin{itemize}
@@ -214,7 +222,7 @@
     Since then most of the methods are inherited from the base \texttt{Option} class, each method of pricing is only requred to implement the abstract methods as applicable, i.e. each PDE can be implemented in as few as 30 lines of code.
   \end{frame}
 
-  \section{Rogers-Shi equation for Fixed Strike Asian Calls}
+  \section{Example 1: Rogers-Shi Fixed Strike}
 
   \begin{frame}
     \frametitle{Rogers-Shi equation for Fixed Strike Asian Calls}
@@ -302,7 +310,7 @@
 
   \begin{frame}
     \frametitle{Matrix form}
-    We convert to the matrix form required for the Implicit Difference Scheme used. Truncating the rows where \(j=0\) and \(j=m\), we have
+    We convert to the matrix form required for the Implicit Difference Scheme used.
 
     \begin{equation}
       \textbf{r} = \textbf{Al} + \textbf{Br},
@@ -316,9 +324,9 @@
     \begin{equation}
       \textbf{r} = u_i+1,
     \end{equation}
-    
+
     rearranged to yield
-    
+
     \begin{equation}
       \textbf{(I-B)}\textbf{r} = \textbf{Al}
     \end{equation}
@@ -349,15 +357,6 @@
   \end{frame}
 
   \begin{frame}
-    \frametitle{Rearranged matrix form}
-    This rearranges to
-
-    \begin{equation}
-      \textbf{r} = (\textbf{I} - \textbf{B})^{-1}(\textbf{Al}+\textbf{k}).
-    \end{equation}
-  \end{frame}
-
-  \begin{frame}
     \frametitle{Implementation}
     We can then proceed with solving the Finite Difference Grid based on the above recurrence relation. Adjusting \(\xi_{max}\) such that we have
 
@@ -376,6 +375,101 @@
     \begin{equation}
       P = S_0 u_{n, j'}
     \end{equation}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Implementation}
+    \tiny
+    \lstset{ %
+      language=Python,
+      breaklines=true,
+      otherkeywords={self},             % Add keywords here
+      keywordstyle=\color{deepblue},
+      emph={__init__},          % Custom highlighting
+      emphstyle=\color{deepred}    % Custom highlighting style
+    }
+    \begin{lstlisting}
+class AsianRSFixedCall(FixedCall):
+    def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
+        super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
+        self.j0 = round(numx/3)
+        self.dx = self.strike / self.s0 / self.j0
+        self.maxx = numx * self.dx
+        self.set_boundary_conditions()
+    def initial_value_at_bottom(self, time):
+        return (1 - math.exp(-self.r * time * self.dt)) / (self.r * self.maxt)
+    def a(self, t):
+        return -self.q(t) * self.b(t)
+    def b(self, t):
+        return -math.exp(self.r*(self.maxt - t))
+    def alpha(self, height, time):
+        return .25 * self.sigma**2 * height**2 * self.dt
+    def beta(self, height, time):
+        return (height * self.r * self.dx + 1 / self.maxt) * self.dt  / (4 * self.dx)
+    def A_matrix(self):
+        return super().A_matrix(0, lambda a, b: a + b, lambda a, b: 1 - 2*a, lambda a, b: a - b)
+    def B_matrix(self):
+        return super().B_matrix(0, lambda a, b: a + b, lambda a, b: -2 * a, lambda a, b: a - b)
+    def solve(self):
+        self.fake_super_solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(), lambda time: self.A_matrix())
+        return self.s0 * self.grid[self.j0, self.numt]
+    \end{lstlisting}
+    % Indenting this next line breaks the build (latex seriously?)
+\end{frame}
+
+  \section{Results}
+
+  \begin{frame}
+    \frametitle{Results for Fixed Strike Calls}
+    \small
+    \begin{table}[h]
+      \begin{tabular}{|c|c|c|c|c|c|c|c|}
+      \hline
+      Volatility & Strike & Benchmark & RS & Vecer & DL & New & New-Vecer \\
+      \hline
+      0.05 & 90 & 13.38 & 12.91 & 13.39 & 13.38 & 6.51 & 13.38 \\
+      0.05 & 95 & 8.81 & 7.84 & 8.61 & 8.81 & 3.86 & 8.81 \\
+      0.05 & 100 & 4.31 & 3.65 & 4.37 & 4.27 & 1.71 & 4.31 \\
+      0.05 & 105 & 0.96 & 1.37 & 0.89 & 0.96 & 0.6 & 0.95 \\
+      0.05 & 110 & 0.05 & 0.44 & 0.06 & 0.08 & 0.18 & 0.06 \\
+      0.1 & 90 & 13.39 & 12.7 & 13.4 & 13.38 & 6.41 & 13.39 \\
+      0.1 & 95 & 8.91 & 8.22 & 8.72 & 8.91 & 4.07 & 8.91 \\
+      0.1 & 100 & 4.92 & 4.48 & 4.96 & 4.89 & 2.16 & 4.91 \\
+      0.1 & 105 & 2.07 & 2.08 & 2 & 2.07 & 0.97 & 2.06 \\
+      0.1 & 110 & 0.63 & 0.85 & 0.65 & 0.64 & 0.38 & 0.63 \\
+      0.6 & 90 & 19.96 & 19.02 & 19.91 & 19.93 & 9.81 & 19.96 \\
+      0.6 & 95 & 17.41 & 16.62 & 17.26 & 17.38 & 8.54 & 17.41 \\
+      0.6 & 100 & 15.13 & 14.48 & 15.14 & 15.11 & 7.42 & 15.13 \\
+      0.6 & 105 & 13.11 & 12.57 & 13.04 & 13.11 & 6.42 & 13.11 \\
+      0.6 & 110 & 11.34 & 10.89 & 11.37 & 11.34 & 5.55 & 11.34 \\
+      \hline
+      \end{tabular}
+    \end{table}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Results for Floating Strike Calls}
+    \scriptsize
+    \begin{table}[h]
+      \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+      \hline
+      Volatility & t0 & Average & Benchmark & RS & Vecer & DL & New & New-Vecer \\
+      \hline
+      0.3 & 0.1 & 90 & 9.86 & 9.86 & 9.86 & 9.89 & 9.86 & 10.45 \\
+      0.3 & 0.1 & 100 & 9.35 & 9.34 & 9.33 & 9.38 & 9.35 & 9.8 \\
+      0.3 & 0.1 & 110 & 8.85 & 8.85 & 8.85 & 8.88 & 8.85 & 9.21 \\
+      0.3 & 0.7 & 90 & 11.19 & 11.19 & 11.18 & 11.19 & 11.41 & 12.33 \\
+      0.3 & 0.7 & 100 & 6.86 & 6.86 & 6.85 & 6.86 & 6.96 & 7.02 \\
+      0.3 & 0.7 & 110 & 3.86 & 3.86 & 3.86 & 3.87 & 3.76 & 3.7 \\
+      0.5 & 0.1 & 90 & 14.09 & 14.08 & 14.08 & 13.53 & 14.08 & 14.93 \\
+      0.5 & 0.1 & 100 & 13.65 & 13.64 & 13.64 & 13.49 & 13.65 & 14.33 \\
+      0.5 & 0.1 & 110 & 13.23 & 13.22 & 13.23 & 13.19 & 13.22 & 13.76 \\
+      0.5 & 0.9 & 90 & 11.91 & 11.91 & 11.91 & 11.91 & 12.04 & 13.2 \\
+      0.5 & 0.9 & 100 & 6.44 & 6.44 & 6.44 & 6.43 & 6.38 & 6.5 \\
+      0.5 & 0.9 & 110 & 3.05 & 3.05 & 3.04 & 3.05 & 2.87 & 2.82 \\
+      \hline
+      \end{tabular}
+    \end{table}
   \end{frame}
 
 \end{document}
