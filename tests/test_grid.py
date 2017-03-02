@@ -121,7 +121,7 @@ class TestOptions(unittest.TestCase):
         b = opt.B_matrix(1, lambda a, b: a, lambda a, b: b, lambda a, b: a + b)
         for mat in (a, b):
             for i in range(len(mat)):
-                for j in range(len(mat[i, :])):
+                for j in range(mat[i, :].size):
                     if i - 1 == j:
                         self.assertEqual(mat[i, j], CONST_A)
                     elif i == j:
