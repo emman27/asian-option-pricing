@@ -50,7 +50,7 @@ class Option:
 
     def A_matrix(self, time, lower, curr, upper):
         A = numpy.matrix([[0] * (self.numx + 1)] * (self.numx + 1), dtype = numpy.float64)
-        for i in range(self.numx):
+        for i in range(self.numx + 1):
             a = self.alpha(i, time)
             b = self.beta(i, time)
             if i - 1 >= 0:
@@ -62,7 +62,7 @@ class Option:
 
     def B_matrix(self, time, lower, curr, upper):
         A = numpy.matrix([[0] * (self.numx + 1)] * (self.numx + 1), dtype = numpy.float64)
-        for i in range(self.numx):
+        for i in range(self.numx + 1):
             a = self.alpha(i, time)
             b = self.beta(i, time)
             if i - 1 >= 0:
