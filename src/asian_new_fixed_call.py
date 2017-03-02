@@ -5,7 +5,7 @@ import numpy
 class AsianNewFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
-        self.maxx = abs(3 * self.xi_initial)
+        self.maxx = abs(5 * self.xi_initial)
         self.dx = self.maxx / self.numx
         self.j0 = self.numx + round(self.xi_initial / self.dx)
         self.set_boundary_conditions()
