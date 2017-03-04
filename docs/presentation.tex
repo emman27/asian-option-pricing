@@ -65,7 +65,9 @@
       \xi_t =
       \begin{dcases*}
         a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}} & Fixed calls (in general) \\
-        a(t) + b(t) \frac{A_t}{S_t} & Floating calls (in general)
+        a(t) + b(t) \frac{A_t}{S_t} & Floating calls (in general) \\
+        e^{-r(T-t)}\frac{S_t}{A_t} & New-Vecer fixed call \\
+        \frac{S_t}{A_t} & New-Vecer floating call
       \end{dcases*}
     \end{equation}
   \end{frame}
@@ -222,6 +224,16 @@
     Since then most of the methods are inherited from the base \texttt{Option} class, each method of pricing is only requred to implement the abstract methods as applicable, i.e. each PDE can be implemented in as few as 30 lines of code.
   \end{frame}
 
+  \begin{frame}
+    \frametitle{Other key tools}
+    \begin{itemize}
+      \item Source Control
+      \item Continuous Integration
+      \item Code Coverage
+    \end{itemize}
+    \includegraphics[width=\textwidth]{coverage}
+  \end{frame}
+
   \section{Example 1: Rogers-Shi Fixed Strike}
 
   \begin{frame}
@@ -277,7 +289,7 @@
     Replacing the PDE with the Crank-Nicholson discretizations yields the following equation:
     \begin{equation}
       \begin{split}
-        \frac{u_{i+1, j} - u_{i, j}}{\Delta\tau} = & \frac{1}{2}\sigma^2j^2(\Delta\xi)^2 * \frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1} -2u_{i+1, j} + u_{i+1, j-1}}{2(\Delta\xi)^2} \\ & - (rj\Delta\xi + \frac{1}{T}) * \frac{u_{i, j+1} - u_{i,j-1} +u_{i+1, j+1} - u_{i+1, j-1}}{4\Delta\xi}.
+        \frac{u_{i+1, j} - u_{i, j}}{\Delta\tau} = & \frac{1}{2}\sigma^2j^2(\Delta\xi)^2 * \\ &  \frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1} + u_{i+1, j-1} -2u_{i+1, j} + u_{i+1, j-1}}{2(\Delta\xi)^2} \\ & - (rj\Delta\xi + \frac{1}{T}) * \frac{u_{i, j+1} - u_{i,j-1} +u_{i+1, j+1} - u_{i+1, j-1}}{4\Delta\xi}.
       \end{split}
     \end{equation}
   \end{frame}
@@ -427,21 +439,16 @@ class AsianRSFixedCall(FixedCall):
       \hline
       Volatility & Strike & Benchmark & RS & Vecer & DL & New & New-Vecer \\
       \hline
-      0.05 & 90 & 13.38 & 12.91 & 13.39 & 13.38 & 6.51 & 13.38 \\
-      0.05 & 95 & 8.81 & 7.84 & 8.61 & 8.81 & 3.86 & 8.81 \\
-      0.05 & 100 & 4.31 & 3.65 & 4.37 & 4.27 & 1.71 & 4.31 \\
-      0.05 & 105 & 0.96 & 1.37 & 0.89 & 0.96 & 0.6 & 0.95 \\
-      0.05 & 110 & 0.05 & 0.44 & 0.06 & 0.08 & 0.18 & 0.06 \\
-      0.1 & 90 & 13.39 & 12.7 & 13.4 & 13.38 & 6.41 & 13.39 \\
-      0.1 & 95 & 8.91 & 8.22 & 8.72 & 8.91 & 4.07 & 8.91 \\
-      0.1 & 100 & 4.92 & 4.48 & 4.96 & 4.89 & 2.16 & 4.91 \\
-      0.1 & 105 & 2.07 & 2.08 & 2 & 2.07 & 0.97 & 2.06 \\
-      0.1 & 110 & 0.63 & 0.85 & 0.65 & 0.64 & 0.38 & 0.63 \\
-      0.6 & 90 & 19.96 & 19.02 & 19.91 & 19.93 & 9.81 & 19.96 \\
-      0.6 & 95 & 17.41 & 16.62 & 17.26 & 17.38 & 8.54 & 17.41 \\
-      0.6 & 100 & 15.13 & 14.48 & 15.14 & 15.11 & 7.42 & 15.13 \\
-      0.6 & 105 & 13.11 & 12.57 & 13.04 & 13.11 & 6.42 & 13.11 \\
-      0.6 & 110 & 11.34 & 10.89 & 11.37 & 11.34 & 5.55 & 11.34 \\
+      0.05 & 90 & 13.38 & 12.91 & 13.39 & 13.38 & 12.51 & 13.38 \\
+      0.05 & 95 & 8.81 & 7.84 & 8.61 & 8.81 & 7.43 & 8.81 \\
+      0.05 & 100 & 4.31 & 3.65 & 4.37 & 4.27 & 3.82 & 4.31 \\
+      0.05 & 105 & 0.96 & 1.37 & 0.89 & 0.96 & 1.76 & 0.95 \\
+      0.05 & 110 & 0.05 & 0.44 & 0.06 & 0.08 & 0.75 & 0.06 \\
+      0.6 & 90 & 19.96 & 19.02 & 19.91 & 19.93 & 19.33 & 19.96 \\
+      0.6 & 95 & 17.41 & 16.62 & 17.27 & 17.38 & 16.88 & 17.41 \\
+      0.6 & 100 & 15.13 & 14.48 & 15.14 & 15.11 & 14.68 & 15.13 \\
+      0.6 & 105 & 13.11 & 12.57 & 13.04 & 13.11 & 12.75 & 13.11 \\
+      0.6 & 110 & 11.34 & 10.89 & 11.38 & 11.34 & 11.04 & 11.34 \\
       \hline
       \end{tabular}
     \end{table}
@@ -455,21 +462,33 @@ class AsianRSFixedCall(FixedCall):
       \hline
       Volatility & t0 & Average & Benchmark & RS & Vecer & DL & New & New-Vecer \\
       \hline
-      0.3 & 0.1 & 90 & 9.86 & 9.86 & 9.86 & 9.89 & 9.86 & 10.45 \\
-      0.3 & 0.1 & 100 & 9.35 & 9.34 & 9.33 & 9.38 & 9.35 & 9.8 \\
-      0.3 & 0.1 & 110 & 8.85 & 8.85 & 8.85 & 8.88 & 8.85 & 9.21 \\
-      0.3 & 0.7 & 90 & 11.19 & 11.19 & 11.18 & 11.19 & 11.41 & 12.33 \\
-      0.3 & 0.7 & 100 & 6.86 & 6.86 & 6.85 & 6.86 & 6.96 & 7.02 \\
-      0.3 & 0.7 & 110 & 3.86 & 3.86 & 3.86 & 3.87 & 3.76 & 3.7 \\
-      0.5 & 0.1 & 90 & 14.09 & 14.08 & 14.08 & 13.53 & 14.08 & 14.93 \\
-      0.5 & 0.1 & 100 & 13.65 & 13.64 & 13.64 & 13.49 & 13.65 & 14.33 \\
-      0.5 & 0.1 & 110 & 13.23 & 13.22 & 13.23 & 13.19 & 13.22 & 13.76 \\
-      0.5 & 0.9 & 90 & 11.91 & 11.91 & 11.91 & 11.91 & 12.04 & 13.2 \\
-      0.5 & 0.9 & 100 & 6.44 & 6.44 & 6.44 & 6.43 & 6.38 & 6.5 \\
-      0.5 & 0.9 & 110 & 3.05 & 3.05 & 3.04 & 3.05 & 2.87 & 2.82 \\
+      0.3 & 0.1 & 90 & 9.86 & 9.86 & 9.86 & 9.84 & 9.86 & 10.29 \\
+      0.3 & 0.1 & 100 & 9.35 & 9.34 & 9.33 & 9.37 & 9.35 & 9.65 \\
+      0.3 & 0.1 & 110 & 8.85 & 8.85 & 8.85 & 8.88 & 8.85 & 9.05 \\
+      0.3 & 0.3 & 90 & 10.69 & 10.7 & 10.69 & 10.72 & 10.73 & 11.34 \\
+      0.3 & 0.3 & 100 & 9.06 & 9.06 & 9.05 & 9.08 & 9.07 & 9.32 \\
+      0.3 & 0.3 & 110 & 7.61 & 7.61 & 7.61 & 7.63 & 7.61 & 7.6 \\
+      0.5 & 0.7 & 90 & 14.21 & 14.2 & 14.2 & 14.21 & 14.25 & 15.47 \\
+      0.5 & 0.7 & 100 & 10.49 & 10.49 & 10.48 & 10.49 & 10.49 & 10.61 \\
+      0.5 & 0.7 & 110 & 7.58 & 7.57 & 7.58 & 7.59 & 7.54 & 7.15 \\
+      0.5 & 0.9 & 90 & 11.91 & 11.91 & 11.91 & 11.91 & 12.04 & 12.99 \\
+      0.5 & 0.9 & 100 & 6.44 & 6.44 & 6.44 & 6.44 & 6.38 & 6.37 \\
+      0.5 & 0.9 & 110 & 3.05 & 3.05 & 3.04 & 3.05 & 2.87 & 2.75 \\
       \hline
       \end{tabular}
     \end{table}
+  \end{frame}
+
+  \section{Analysis}
+
+  \begin{frame}
+    \frametitle{Time Complexity}
+    \begin{itemize}
+      \item Linear algebra solver: \(O(numx^3)\)
+      \item Number of time points \(O(numt)\)
+      \item Other calculations are relatively trivial in comparison - we note that generating the A and B matrices are operations of order \(O(numx^2)\) which is the closest to causing any upsets.
+      \item Therefore the final complexity is \(O(numt * numx^3)\)
+    \end{itemize}
   \end{frame}
 
 \end{document}
