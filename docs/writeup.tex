@@ -1,33 +1,67 @@
 \documentclass{article}
 \usepackage{mathtools}
+\usepackage{indentfirst}
+\usepackage{url}
 
 \begin{document}
 
-\section{Definitions}
+\tableofcontents
 
+\newpage
+
+\section{Introduction}
+
+The Asian Option is an option whose payoff is dependent on the average price of the underlying asset over a period of time. These come in fixed strike and floating strike variants. Many different methods of pricing exist, among which include closed-form approximations, lattice methods, as well as Monte Carlo simulations. Each have distinct advantages over the other.
+
+In this paper, we price an Asian option using the Implicit Finite Difference Scheme method, applying transformations used by 5 different Partial Differential Equations to construct the Finite Difference Grid.
+
+\section{Definitions}
+The following variables will be used throughout the paper. Where necessary, mathematical definitions will follow later.
 \begin{table}[h]
-\begin{tabular}{|c|c|}
-  \hline
-  \textbf{Description} & \textbf{Variable Name} \\ \hline
-  Stock Price & \(S\) \\
-  Strike Price & \(K\)\\
-  Average Price & \(A\) \\
-  Lifespan of the Option & \(T\) \\
-  Initial time & \(t_0\) \\
-  Risk Free Rate & \(r\) \\
-  Dividend Rate & \(\delta\) \\
-  \hline
-\end{tabular}
-\caption{Variables used in various equations}
-\label{table:name}
+  \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Description} & \textbf{Variable Name} \\ \hline
+    Stock Price & \(S\) \\
+    Strike Price & \(K\)\\
+    Average Price & \(A\) \\
+    Time ago which averaging started & \(t_0\) \\
+    Remaining lifespan of the Option & \(T\) \\
+    Risk Free Rate & \(r\) \\
+    Dividend Rate & \(\delta\) \\
+    \hline
+  \end{tabular}
+  \caption{Variables used in various equations}
+  \label{table:name}
 \end{table}
 
-The average price of a stock is given by
+\section{Finite Difference Schemes}
+
+The Finite Difference Scheme method allows for flexibility between accuracy and time. Monte Carlo methods are heavily dependent on the number of paths to increase accuracy \cite{montecarlo}. For closed form approximations, no tradeoff can be made.
+
+The Implicit Finite Difference Scheme is a modification of the Binomial Tree Method, whereby predefining a grid and setting particular boundary and terminal values allows us to iteratively recover the fair price of an option today.
+
+INSERT FDS DIAGRAMS HERE
+
+\section{Derivation}
+
+The payoff of the options for the fixed and floating strike calls are respectively \(max\{A_T - K, 0\}\) and \(max\{S_T - A_T, 0\}\), given the average price of a stock, which can be calculated by
 \begin{equation}
   A_T = \frac{t_0A + \int_0^T S_t \mathrm{d}t}{t_0 + T}.
 \end{equation}.
 
-We define also the function \(q(t)\) such that
+Supposing that the stock price \(S\) follows Geometric Brownian Motion, we have
+
+\begin{equation}
+  \mathrm{d}S_t = \mu S_t \mathrm{d}t + \sigma S_t \mathrm{d}W_t.
+\end{equation}
+
+In the risk-neutral world, this comes to
+\begin{equation}
+  \mathrm{d}\tilde{S}_t = \mu \tilde{S}_t \mathrm{d}t + \sigma \tilde{S}_t \mathrm{d}W_t,
+\end{equation}
+where \(\tilde{S}_t = e^{-\delta(T-t)}S_t\).
+
+For convenience purposes, we also define the function \(q(t)\) such that
 \begin{equation}
   q(t) =
   \begin{dcases*}
@@ -36,11 +70,22 @@ We define also the function \(q(t)\) such that
   \end{dcases*},
 \end{equation}
 
-and by this we obtain the value process of a self-financing portfolio with payoff \(A_T\), also known as the average asset.
+We obtain the value process of a self-financing portfolio with payoff \(A_T\), also known as the average asset in our situation here, using the following identity:
+
+\begin{equation}
+  E_P(\int_0^TS_u\textrm{d}u | \mathcal{F}_t) = \int_0^t S_u \textrm{d}u + \int_t^T S_te^{(r-\delta)(u-t)}\textrm{d}u,
+\end{equation}
 
 \begin{equation}
   A_t = e^{-r(T-t)}E_P(A_T|\mathcal{F}_T) = q(t)\tilde{S_t} + e^{-r(T-t)} \frac{t_0 A + \int_0^tS_u\mathrm{d}u}{t_0+T}.
 \end{equation}
+
+Using Ito's Lemma on the risk-neutral asset yields
+
+\begin{equation}
+ \textrm{d}(\frac{e^{rt}}{\tilde{S}_t}) = -\sigma \frac{e^{rt}}{\tilde{S}_t}\textrm{d}W_t^S,
+\end{equation}
+where \(W_t^S = W_t - \sigma t\)
 
 We also define
 \begin{equation}
@@ -223,5 +268,26 @@ Then, the fair price of the option \(P\) is given by
 \begin{equation}
   P = S_0 u_{n, j'}
 \end{equation}
+
+\section{Implementation}
+
+\subsection{Inheritance and Overriding}
+Since the methods governing the solutions of the various Partial Differential Equations are largely similar, we adopt the object-oriented approach. Inheritance and overriding are fundamental concepts of object-oriented programming, and reduce the complexity of the required implementation.
+
+Inheritance enables new objects to take on the properties of existing objects \cite{oop_inheritance}. In this case, we define an \texttt{Option} superclass which implements all commonalities between both fixed and floating strike calls, including keeping track of properties, setting up the grid as well as some of the common methods. \texttt{FixedCall} and \texttt{FloatingCall} superclasses are also defined to handle the mild differences between the two cases.
+
+Overriding is a feature that enables a child class to provide different implementation for a method that is already defined and/or implemented in its parent class or one of its parent classes \cite{oop_override}. This allows us to implement abstract methods defaulting to a non-damaging value and override them in a subclass only if necessary.
+
+The overall advantage of this design allows for the reduction of 10 different algorithms into a more centralized structure where each algorithm implements only the minimum requirement. The language of choice was Python - a free programming language. We also heavily use the \texttt{NumPy} package, which is the fundamental package for scientific computing with Python.
+
+\subsection{\texttt{Option} superclass}
+
+\subsection{\texttt{FixedCall} and \texttt{FloatingCall}}
+
+\subsection{A minimal example implementation}
+
+\bibliographystyle{unsrt}
+\addcontentsline{toc}{section}{Bibliography}
+\bibliography{ref}
 
 \end{document}
