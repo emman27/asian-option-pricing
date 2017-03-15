@@ -2,6 +2,12 @@
 \usepackage{mathtools}
 \usepackage{indentfirst}
 \usepackage{url}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
 
 \begin{document}
 
@@ -89,15 +95,13 @@ where \(W_t^S = W_t - \sigma t\)
 
 We also define
 \begin{equation}
-  \xi_t = a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}}.
+  \xi_t = a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}},
 \end{equation}
-
 and are given the following governing partial differential equation
 
 \begin{equation}
   \phi_t + [\dot{a}(t) + \dot{b}(t)(\xi - a(t))/b(t)]\phi_\xi + \frac{1}{2}\sigma^2[a(t)+b(t)q(t) - \xi]^2\phi_{\xi\xi} = 0,
 \end{equation}
-
 where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below table.
 
 \begin{table}[h]
@@ -269,6 +273,9 @@ Then, the fair price of the option \(P\) is given by
   P = S_0 u_{n, j'}
 \end{equation}
 
+\section{Error analysis}
+
+
 \section{Implementation}
 
 \subsection{Inheritance and Overriding}
@@ -282,9 +289,58 @@ The overall advantage of this design allows for the reduction of 10 different al
 
 \subsection{\texttt{Option} superclass}
 
+\subsubsection{A special consideration}
+Since the different schemes should apply similar values of \(\Delta\xi\) and \(\Delta t\), we fix \(\xi_{max}\) and adjust the number of points used on the grid such that over the different domains, \(\Delta\xi\) remains constant.
+
+\subsubsection{Full implementation}
+\lstset{ %
+  breaklines=true,
+  title=\texttt{option.py},
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue}
+}
+\scriptsize
+\lstinputlisting[language=Python]{../src/option.py}
+\normalsize
+
 \subsection{\texttt{FixedCall} and \texttt{FloatingCall}}
 
+\lstset{ %
+  breaklines=true,
+  title=\texttt{fixed\_call.py},
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue}
+}
+\scriptsize
+\lstinputlisting[language=Python]{../src/fixed_call.py}
+\normalsize
+
+\lstset{ %
+  breaklines=true,
+  title=\texttt{floating\_call.py},
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue}
+}
+\scriptsize
+\lstinputlisting[language=Python]{../src/floating_call.py}
+\normalsize
+
 \subsection{A minimal example implementation}
+
+We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an example of an implementation of one method. This method is chosen as it is one of the most straightforward to implement.
+\lstset{ %
+  breaklines=true,
+  title=\texttt{asian\_dl\_fixed\_call.py},
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue}
+}
+\scriptsize
+\lstinputlisting[language=Python]{../src/asian_dl_fixed_call.py}
+\normalsize
 
 \bibliographystyle{unsrt}
 \addcontentsline{toc}{section}{Bibliography}
