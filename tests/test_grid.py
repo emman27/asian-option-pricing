@@ -71,7 +71,7 @@ class TestOptions(unittest.TestCase):
                 for k in STRIKES:
                     call = option(MAXT, NUMX, NUMT, R, s, S0, k)
                     self.assertGreaterEqual(call.xi_initial, 0, msg=str(option))
-                    self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4))), call.dx/2, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
+                    self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4))), call.dx, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
         self.assertGreaterEqual(0, AsianNewFixedCall(MAXT, NUMX, NUMT, R, s, S0, k).xi_initial, msg=str(option))
         for option in floating:
             for s in SIGMAS_FLOAT:
@@ -79,21 +79,21 @@ class TestOptions(unittest.TestCase):
                     for avr in CURRENT_AVERAGES:
                         call = option(MAXT - t0, NUMX, NUMT, R_FLOAT, s, S0, avr, t0)
                         self.assertGreaterEqual(call.xi_initial, 0, msg=str(option))
-                        self.assertLess(call.xi_initial - call.dx * call.j0, call.dx/2)
+                        self.assertLess(call.xi_initial - call.dx * call.j0, call.dx)
         for option in the_rest_fixed:
             for s in SIGMAS:
                 for k in STRIKES:
                     call = option(MAXT, NUMX, NUMT, R, s, S0, k)
                     self.assertGreaterEqual(call.xi_initial, -call.maxx, msg=str(option))
                     self.assertGreaterEqual(call.maxx, call.xi_initial, msg=str(option))
-                    self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4) - call.maxx)), call.dx/2, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
+                    self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4) - call.maxx)), call.dx, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
         for option in the_rest_floating:
             for s in SIGMAS_FLOAT:
                 for t0 in T0S:
                     for avr in CURRENT_AVERAGES:
                         self.assertGreaterEqual(call.xi_initial, -call.maxx, msg=str(option))
                         self.assertGreaterEqual(call.maxx, call.xi_initial, msg=str(option))
-                        self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4) - call.maxx)), call.dx/2, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
+                        self.assertLess(abs(round(call.xi_initial, 4) - (round(call.j0 * call.dx,4) - call.maxx)), call.dx, msg=str(call) + ': ' + str(call.xi_initial) + ', ' + str(call.dx * call.j0) + ', ' + str(call.j0))
 
 
     def test_initializers(self):
