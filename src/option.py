@@ -14,6 +14,7 @@ class Option:
         self.dt = maxt / float(numt)
 
         self.xi_initial = self.xi(self.s0, 0)
+        self.maxx = 2
         # One extra time point to account for t = 0
         self.grid = numpy.matrix([[0] * (self.numt + 1)] * (self.numx + 1), dtype = numpy.float64)
 

@@ -5,7 +5,6 @@ import math
 class AsianDLFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx * 2, numt, r, sigma, initial_price, old_average, t0)
-        self.maxx = abs(self.xi_initial * 4)
         self.dx = self.maxx * 2 / self.numx
         self.j0 = round((self.xi_initial + self.maxx) / self.dx)
         self.set_boundary_conditions()

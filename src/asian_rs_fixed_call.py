@@ -5,9 +5,8 @@ import numpy
 class AsianRSFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
-        self.j0 = round(numx/3)
-        self.dx = self.strike / self.s0 / self.j0
-        self.maxx = numx * self.dx
+        self.dx = self.maxx / self.numx
+        self.j0 = round(self.xi_initial / self.dx)
         self.set_boundary_conditions()
 
     def initial_value_at_bottom(self, time):

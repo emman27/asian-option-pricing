@@ -5,7 +5,6 @@ import numpy
 class AsianNewVecerFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx * 2, numt, r, sigma, initial_price, old_average, t0)
-        self.maxx = self.xi_initial * 3
         self.dx = self.maxx / self.numx
         self.j0 = round(self.xi_initial / self.dx)
         self.set_boundary_conditions()

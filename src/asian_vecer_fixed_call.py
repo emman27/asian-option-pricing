@@ -6,7 +6,6 @@ class AsianVecerFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx * 2, numt, r, sigma, initial_price, strike)
         # We choose maxx to be = q(0)
-        self.maxx = abs(self.q(0))
         self.dx = (2 * self.maxx) / self.numx
         self.set_boundary_conditions()
         self.set_strange_boundary()

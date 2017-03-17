@@ -5,9 +5,8 @@ import numpy
 class AsianDLFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
-        self.j0 = round(numx/3)
-        self.dx = self.xi_initial / self.j0
-        self.maxx = self.dx * self.numx
+        self.dx = self.maxx / self.numx
+        self.j0 = round(self.xi_initial / self.dx)
         self.set_boundary_conditions()
 
     def a(self, t):
@@ -40,18 +39,3 @@ class AsianDLFixedCall(FixedCall):
     def solve(self):
         super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
         return self.s0 * self.grid[self.j0, self.numt]
-
-# if __name__ == '__main__':
-#     # Constants
-#     numx = 200
-#     numt = 400
-#     maxt = 1
-#     r = 0.09
-#     s0 = 100
-
-#     sigma = 0.05
-    # print('Expected: 13.38, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-    # print('Expected: 8.81, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-    # print('Expected: 4.22, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-    # print('Expected: 1.00, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-    # print('Expected: 0.09, Actual: ' + str(AsianDLFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
