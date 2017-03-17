@@ -9,7 +9,8 @@ class AsianVecerFixedCall(FixedCall):
         self.dx = (2 * self.maxx) / self.numx
         self.set_boundary_conditions()
         self.set_strange_boundary()
-        self.j0 = round((self.xi_initial + self.maxx) / self.dx)
+        self.j0 = int((self.xi_initial + self.maxx) / self.dx)
+        self.xi_min = -self.maxx
 
     def a(self, t):
         return 0
@@ -41,8 +42,7 @@ class AsianVecerFixedCall(FixedCall):
         return super().B_matrix(time, lambda a, b: a, lambda a, b: -2*a, lambda a, b: a)
 
     def solve(self):
-        super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
-        return self.s0 * self.grid[self.j0, self.numt]
+        return super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
 
 # if __name__ == '__main__':
 #     # Constants

@@ -6,7 +6,7 @@ class AsianRSFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
         self.dx = self.maxx / self.numx
-        self.j0 = round(self.xi_initial / self.dx)
+        self.j0 = int(self.xi_initial / self.dx)
         self.set_boundary_conditions()
 
     def initial_value_at_bottom(self, time):
@@ -45,7 +45,7 @@ class AsianRSFixedCall(FixedCall):
         a_mat = self.A_matrix()
         b_mat = self.B_matrix()
         self.fake_super_solve(lambda time: numpy.identity(self.numx + 1) - b_mat, lambda time: a_mat)
-        return self.s0 * self.grid[self.j0, self.numt]
+        return self.interpolate()
 
     def fake_super_solve(self, left_multiplier, right_multiplier):
         for col in range(self.numt):

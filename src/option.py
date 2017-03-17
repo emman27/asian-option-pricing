@@ -12,7 +12,7 @@ class Option:
         self.old_average = avr
         self.t0 = t0
         self.dt = maxt / float(numt)
-
+        self.xi_min = 0
         self.xi_initial = self.xi(self.s0, 0)
         self.maxx = 2
         # One extra time point to account for t = 0
@@ -36,6 +36,15 @@ class Option:
             new = numpy.linalg.solve(left_multiplier(col), right_multiplier(col) * l)
             for row in range(self.numx + 1):
                 self.grid.itemset((row, col + 1), new[row])
+        return self.interpolate()
+
+    def interpolate(self):
+        y0 = self.s0 * self.grid[self.j0, self.numt]
+        y1 = self.s0 * self.grid[self.j0 + 1, self.numt]
+        x = self.xi_initial
+        x0 = self.j0 * self.dx + self.xi_min
+        x1 = (self.j0 + 1) * self.dx + self.xi_min
+        return y0 + (x - x0) * (y1 - y0) / (x1 - x0)
 
     def set_bottom_boundary(self):
         for i in range(self.numt + 1):

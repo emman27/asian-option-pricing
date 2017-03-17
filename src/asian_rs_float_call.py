@@ -6,7 +6,8 @@ class AsianRSFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx * 2, numt, r, sigma, initial_price, old_average, t0)
         self.dx = self.maxx * 2 / self.numx
-        self.j0 = round((self.xi_initial + self.maxx) / self.dx)
+        self.j0 = int((self.xi_initial + self.maxx) / self.dx)
+        self.xi_min = -self.maxx
         self.set_boundary_conditions()
 
     def a(self, t):
@@ -36,8 +37,7 @@ class AsianRSFloatCall(FloatingCall):
     def solve(self):
         a_mat = self.A_matrix()
         b_mat = numpy.identity(self.numx + 1) - self.B_matrix()
-        super().solve(lambda time: b_mat, lambda time: a_mat)
-        return self.s0 * self.grid[self.j0, self.numt]
+        return super().solve(lambda time: b_mat, lambda time: a_mat)
 
 # if __name__ == '__main__':
 #     # Constants

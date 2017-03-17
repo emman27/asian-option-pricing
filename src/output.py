@@ -81,6 +81,8 @@ if __name__ == "__main__":
         for row in output:
             writer.writerow(row)
 
+    print('break now')
+
     # Floating Strike output
     output = []
     output.append(HEADERS_FLOAT)

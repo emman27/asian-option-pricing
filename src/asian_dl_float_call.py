@@ -6,7 +6,8 @@ class AsianDLFloatCall(FloatingCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, old_average, t0):
         super().__init__(maxt, numx * 2, numt, r, sigma, initial_price, old_average, t0)
         self.dx = self.maxx * 2 / self.numx
-        self.j0 = round((self.xi_initial + self.maxx) / self.dx)
+        self.j0 = int((self.xi_initial + self.maxx) / self.dx)
+        self.xi_min = -self.maxx
         self.set_boundary_conditions()
 
     def a(self, t):
@@ -42,8 +43,8 @@ class AsianDLFloatCall(FloatingCall):
         return super().B_matrix(time, lambda a, b: a - b, lambda a, b: - 2 * a, lambda a, b: a + b)
 
     def solve(self):
-        super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
-        return self.s0 * self.grid[self.j0, self.numt]
+        return super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
+
 # if __name__ == "__main__":
 #     # Constants
 #     numx = 200

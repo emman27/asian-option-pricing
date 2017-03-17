@@ -6,7 +6,8 @@ class AsianNewFixedCall(FixedCall):
     def __init__(self, maxt, numx, numt, r, sigma, initial_price, strike):
         super().__init__(maxt, numx, numt, r, sigma, initial_price, strike)
         self.dx = self.maxx / self.numx
-        self.j0 = self.numx + round(self.xi_initial / self.dx)
+        self.j0 = int((self.maxx + self.xi_initial) / self.dx)
+        self.xi_min = -self.maxx
         self.set_boundary_conditions()
 
     def a(self, t):
@@ -32,7 +33,7 @@ class AsianNewFixedCall(FixedCall):
 
     def solve(self):
         self.fake_super_solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
-        return self.s0 * self.grid[self.j0, self.numt]
+        return self.interpolate()
 
     def fake_super_solve(self, left_multiplier, right_multiplier):
         for col in range(self.numt):
@@ -42,17 +43,17 @@ class AsianNewFixedCall(FixedCall):
             for row in range(self.numx):
                 self.grid.itemset((row, col + 1), new[row])
 
-# if __name__ == "__main__":
-#     # Constants
-#     numx = 200
-#     numt = 400
-#     maxt = 1
-#     r = 0.09
-#     s0 = 100
+if __name__ == "__main__":
+    # Constants
+    numx = 200
+    numt = 400
+    maxt = 1
+    r = 0.09
+    s0 = 100
 
-#     sigma = 0.05
-#     print('Expected: 13.07, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-#     print('Expected: 7.81, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-#     print('Expected: 3.91, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-#     print('Expected: 1.65, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-#     print('Expected: 0.59, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
+    sigma = 0.05
+    print('Expected: 13.07, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
+    print('Expected: 7.81, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
+    print('Expected: 3.91, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
+    print('Expected: 1.65, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
+    print('Expected: 0.59, Actual: ' + str(AsianNewFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))
