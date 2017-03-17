@@ -4,6 +4,8 @@
 \usepackage{url}
 \usepackage{listings}
 \usepackage{color}
+\usepackage[numbers]{natbib}
+\usepackage{float}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -19,11 +21,11 @@
 
 The Asian Option is an option whose payoff is dependent on the average price of the underlying asset over a period of time. These come in fixed strike and floating strike variants. Many different methods of pricing exist, among which include closed-form approximations, lattice methods, as well as Monte Carlo simulations. Each have distinct advantages over the other.
 
-In this paper, we price an Asian option using the Implicit Finite Difference Scheme method, applying transformations used by 5 different Partial Differential Equations to construct the Finite Difference Grid.
+In this paper, we price an Asian calls of both the fixed and floating strike variety using the Implicit Finite Difference Scheme method, applying transformations used by 5 different Partial Differential Equations to construct the Finite Difference Grid. Namely, these transformations will be referred to as the Rogers-Shi, Vecer, Dubois-Leli\`evre, New and New-Vecer equations.
 
 \section{Definitions}
 The following variables will be used throughout the paper. Where necessary, mathematical definitions will follow later.
-\begin{table}[h]
+\begin{table}[H]
   \begin{tabular}{|c|c|}
     \hline
     \textbf{Description} & \textbf{Variable Name} \\ \hline
@@ -91,20 +93,20 @@ Using Ito's Lemma on the risk-neutral asset yields
 \begin{equation}
  \textrm{d}(\frac{e^{rt}}{\tilde{S}_t}) = -\sigma \frac{e^{rt}}{\tilde{S}_t}\textrm{d}W_t^S,
 \end{equation}
-where \(W_t^S = W_t - \sigma t\)
+where \(W_t^S = W_t - \sigma t\).
 
 We also define
 \begin{equation}
   \xi_t = a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}},
 \end{equation}
-and are given the following governing partial differential equation
+and make use of the following generic governing partial differential equation
 
 \begin{equation}
   \phi_t + [\dot{a}(t) + \dot{b}(t)(\xi - a(t))/b(t)]\phi_\xi + \frac{1}{2}\sigma^2[a(t)+b(t)q(t) - \xi]^2\phi_{\xi\xi} = 0,
 \end{equation}
-where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below table.
+where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below table, and \(a(t)\) and \(b(t)\) are arbitrary functions.
 
-\begin{table}[h]
+\begin{table}[H]
   \begin{tabular}{|c|c|c|}
     \hline
     & Fixed Strike & Floating Strike \\
@@ -117,9 +119,40 @@ where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below tabl
 \end{table}
 
 \section{Partial Differential Equations}
+We show the transformations used in the 5 different partial differential equations.
+
+For the Rogers-Shi equation, taking \(a(t)\) = \(-b(t)q(t)\) and \(b(t) = -e^{(r-\delta)(T-t)}\), we have the partial differential equation
+
+\begin{equation}
+  \phi_t - ( (r-\delta)\xi + \frac{1}{t_0 + T} )\phi_\xi + \frac{1}{2}\sigma^2\xi^2\phi_{\xi\xi} = 0.
+\end{equation}We note that in this case, the coefficients do not depend on time. This gives rise to an interesting optimization in the code later that results in a faster numerical runtime for pricing with this partial differential equation.
+
+For the Vecer equation, taking \(a(t) = 0\) and \(b(t)=1\) yields
+
+\begin{equation}
+  \phi_t + \frac{1}{2}\sigma^2(q(t) - \xi)^2\phi_{\xi\xi} = 0.
+\end{equation}
+
+For the Dubois-Leli\`{e}vre equation, taking \(a(t) = \frac{t}{t_0 + T} - q(t)b(t)\) and \(b(t)=-e^{(r-\delta)(T-t)}\) yields
+
+\begin{equation}
+  \phi_t + (r-\delta)(\frac{t}{t_0 + T} - \xi)\phi_\xi + \frac{1}{2}\sigma^2(\frac{t}{t_0 + T} - \xi)^2\phi_{\xi\xi} = 0.
+\end{equation}
+
+For the New equation, taking \(a(t) = -q(t)b(t)\) and \(b(t) = 1\) yields
+
+\begin{equation}
+  \phi_t + \frac{e^{-(r-\delta)(T-t)}}{t_0 + T}\phi_\xi + \frac{1}{2}\sigma^2\xi^2\phi_{\xi\xi} = 0.
+\end{equation}
+
+Finally, for the New Vecer equation, for the floating strike case (Vecer 2014), using \(A_t\) as numeraire, we have \(\xi_t = \frac{\tilde{S}_t}{A_t}\). This eventually yields the partial differential equation % citation needed
+
+\begin{equation}
+  \phi_t + \frac{1}{2}\sigma^2\xi^2(q(t)\xi - 1)^2 \phi_{\xi\xi} = 0.
+\end{equation}
 
 \subsection{Boundary Conditions}
-\begin{table}[h]
+\begin{table}[H]
   \begin{tabular}{|c|c|c|}
     \hline
     & \(\xi \rightarrow \infty\) & \(\xi \rightarrow -\infty\) \\
@@ -274,7 +307,7 @@ Then, the fair price of the option \(P\) is given by
 \end{equation}
 
 \section{Error analysis}
-
+All schemes apply the Crank-Nicholson discretization. Therefore, we have the error term being of order \(O(\Delta\xi^2 + \Delta t^2)\).
 
 \section{Implementation}
 
@@ -330,7 +363,7 @@ Since the different schemes should apply similar values of \(\Delta\xi\) and \(\
 
 \subsection{A minimal example implementation}
 
-We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an example of an implementation of one method. This method is chosen as it is one of the most straightforward to implement.
+We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an example of an implementation of one method. This method is chosen as an example because it is one of the most straightforward and minimal implementations.
 \lstset{ %
   breaklines=true,
   title=\texttt{asian\_dl\_fixed\_call.py},
@@ -342,7 +375,98 @@ We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an e
 \lstinputlisting[language=Python]{../src/asian_dl_fixed_call.py}
 \normalsize
 
-\bibliographystyle{unsrt}
+\section{Results}
+The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{\Delta t} = 400\), that is, fixing the number of time points at 400, and varying the number of state points such that the spacing is consistent over the different methods. Benchmark values for the fixed strike cases are calculated using the method from Dai, Huang and Lyuu \cite{dai_et_al} and for the floating strike case, we use Monte Carlo results from Henderson \textit{et al.} \cite{henderson_et_al}
+
+\scriptsize
+\begin{table}[H]
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+  \hline
+  Volatility & Strike & Benchmark & RS & Vecer & DL & New & New-Vecer \\
+  \hline
+  0.05 & 90 & 13.38 & 12.66 & 13.0 & 13.38 & 12.92 & 13.01 \\
+  0.05 & 95 & 8.81 & 8.08 & 9.0 & 8.81 & 7.88 & 8.42 \\
+  0.05 & 100 & 4.31 & 3.63 & 4.08 & 4.29 & 3.94 & 3.92 \\
+  0.05 & 105 & 0.96 & 1.1 & 1.1 & 0.95 & 1.1 & 0.77 \\
+  0.05 & 110 & 0.05 & 0.23 & 0.05 & 0.06 & 0.2 & 0.04 \\
+  0.1 & 90 & 13.39 & 12.53 & 13.01 & 13.38 & 12.78 & 13.02 \\
+  0.1 & 95 & 8.91 & 8.23 & 9.09 & 8.91 & 8.06 & 8.54 \\
+  0.1 & 100 & 4.92 & 4.47 & 4.73 & 4.91 & 4.74 & 4.59 \\
+  0.1 & 105 & 2.07 & 1.95 & 2.22 & 2.06 & 1.94 & 1.87 \\
+  0.1 & 110 & 0.63 & 0.69 & 0.61 & 0.63 & 0.61 & 0.54 \\
+  0.2 & 90 & 13.83 & 12.93 & 13.49 & 13.83 & 13.16 & 13.5 \\
+  0.2 & 95 & 10.0 & 9.33 & 10.14 & 9.99 & 9.2 & 9.69 \\
+  0.2 & 100 & 6.78 & 6.32 & 6.62 & 6.77 & 6.55 & 6.51 \\
+  0.2 & 105 & 4.3 & 4.01 & 4.45 & 4.29 & 4.0 & 4.09 \\
+  0.2 & 110 & 2.55 & 2.39 & 2.51 & 2.54 & 2.26 & 2.4 \\
+  0.3 & 90 & 14.98 & 14.04 & 14.69 & 14.98 & 14.24 & 14.69 \\
+  0.3 & 95 & 11.66 & 10.91 & 11.78 & 11.65 & 10.81 & 11.38 \\
+  0.3 & 100 & 8.83 & 8.26 & 8.69 & 8.83 & 8.48 & 8.58 \\
+  0.3 & 105 & 6.52 & 6.1 & 6.67 & 6.52 & 6.09 & 6.31 \\
+  0.3 & 110 & 4.7 & 4.4 & 4.66 & 4.69 & 4.25 & 4.52 \\
+  0.4 & 90 & 16.5 & 15.47 & 16.24 & 16.5 & 15.66 & 16.23 \\
+  0.4 & 95 & 13.51 & 12.66 & 13.63 & 13.51 & 12.58 & 13.26 \\
+  0.4 & 100 & 10.92 & 10.24 & 10.8 & 10.92 & 10.44 & 10.69 \\
+  0.4 & 105 & 8.73 & 8.18 & 8.87 & 8.73 & 8.17 & 8.52 \\
+  0.4 & 110 & 6.9 & 6.47 & 6.87 & 6.9 & 6.32 & 6.72 \\
+  0.5 & 90 & 18.19 & 17.07 & 17.95 & 18.19 & 17.25 & 17.93 \\
+  0.5 & 95 & 15.44 & 14.49 & 15.55 & 15.44 & 14.41 & 15.2 \\
+  0.5 & 100 & 13.03 & 12.22 & 12.91 & 13.03 & 12.42 & 12.8 \\
+  0.5 & 105 & 10.93 & 10.25 & 11.07 & 10.93 & 10.25 & 10.72 \\
+  0.5 & 110 & 9.12 & 8.55 & 9.09 & 9.12 & 8.41 & 8.93 \\
+  0.6 & 90 & 19.96 & 18.74 & 19.74 & 19.93 & 18.91 & 19.72 \\
+  0.6 & 95 & 17.41 & 16.34 & 17.51 & 17.38 & 16.27 & 17.17 \\
+  0.6 & 100 & 15.13 & 14.2 & 15.02 & 15.11 & 14.39 & 14.91 \\
+  0.6 & 105 & 13.11 & 12.3 & 13.25 & 13.1 & 12.31 & 12.91 \\
+  0.6 & 110 & 11.34 & 10.64 & 11.31 & 11.33 & 10.5 & 11.15 \\
+  \hline
+  \end{tabular}
+\end{table}
+\begin{table}[H]
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+  \hline
+  Volatility & t0 & Average & Benchmark & RS & Vecer & DL & New & New-Vecer \\
+  \hline
+  0.3 & 0.1 & 90 & 9.86 & 9.86 & 10.03 & 9.89 & 9.99 & 10.42 \\
+  0.3 & 0.1 & 100 & 9.35 & 9.34 & 9.46 & 9.37 & 9.42 & 9.79 \\
+  0.3 & 0.1 & 110 & 8.85 & 8.85 & 8.91 & 8.88 & 8.88 & 9.18 \\
+  0.3 & 0.3 & 90 & 10.69 & 10.7 & 10.56 & 10.72 & 10.81 & 11.67 \\
+  0.3 & 0.3 & 100 & 9.06 & 9.06 & 8.82 & 9.08 & 9.04 & 9.4 \\
+  0.3 & 0.3 & 110 & 7.61 & 7.61 & 7.79 & 7.63 & 7.5 & 7.65 \\
+  0.3 & 0.5 & 90 & 11.2 & 11.21 & 10.92 & 11.21 & 11.08 & 12.09 \\
+  0.3 & 0.5 & 100 & 8.31 & 8.31 & 8.49 & 8.33 & 8.08 & 8.75 \\
+  0.3 & 0.5 & 110 & 6.0 & 6.0 & 6.04 & 6.01 & 6.13 & 5.97 \\
+  0.3 & 0.7 & 90 & 11.19 & 11.19 & 10.96 & 11.19 & 11.29 & 12.52 \\
+  0.3 & 0.7 & 100 & 6.86 & 6.86 & 7.13 & 6.87 & 6.83 & 6.99 \\
+  0.3 & 0.7 & 110 & 3.86 & 3.86 & 3.96 & 3.86 & 3.76 & 3.74 \\
+  0.3 & 0.9 & 90 & 10.38 & 10.38 & 10.5 & 10.38 & 10.55 & 11.57 \\
+  0.3 & 0.9 & 100 & 4.07 & 4.07 & 4.09 & 4.07 & 4.12 & 4.13 \\
+  0.3 & 0.9 & 110 & 1.04 & 1.03 & 1.03 & 1.04 & 1.03 & 0.93 \\
+  0.5 & 0.1 & 90 & 14.09 & 14.08 & 14.22 & 14.12 & 14.19 & 13.74 \\
+  0.5 & 0.1 & 100 & 13.65 & 13.64 & 13.74 & 13.69 & 13.71 & 13.24 \\
+  0.5 & 0.1 & 110 & 13.23 & 13.22 & 13.28 & 13.27 & 13.25 & 12.75 \\
+  0.5 & 0.3 & 90 & 14.71 & 14.71 & 14.6 & 14.74 & 14.8 & 14.73 \\
+  0.5 & 0.3 & 100 & 13.33 & 13.33 & 13.13 & 13.37 & 13.32 & 12.93 \\
+  0.5 & 0.3 & 110 & 12.08 & 12.07 & 12.23 & 12.1 & 11.97 & 11.45 \\
+  0.5 & 0.5 & 90 & 14.88 & 14.88 & 14.65 & 14.9 & 14.77 & 15.07 \\
+  0.5 & 0.5 & 100 & 12.42 & 12.42 & 12.58 & 12.44 & 12.21 & 12.35 \\
+  0.5 & 0.5 & 110 & 10.32 & 10.31 & 10.35 & 10.33 & 10.44 & 9.85 \\
+  0.5 & 0.7 & 90 & 14.21 & 14.2 & 14.02 & 14.21 & 14.29 & 15.34 \\
+  0.5 & 0.7 & 100 & 10.49 & 10.49 & 10.72 & 10.5 & 10.45 & 10.53 \\
+  0.5 & 0.7 & 110 & 7.58 & 7.57 & 7.68 & 7.58 & 7.47 & 7.24 \\
+  0.5 & 0.9 & 90 & 11.91 & 11.91 & 12.01 & 11.91 & 12.05 & 13.26 \\
+  0.5 & 0.9 & 100 & 6.44 & 6.44 & 6.47 & 6.44 & 6.49 & 6.53 \\
+  0.5 & 0.9 & 110 & 3.05 & 3.05 & 3.04 & 3.05 & 3.05 & 2.78 \\
+  \hline
+  \end{tabular}
+\end{table}
+\scriptsize
+*Legend: RS - Rogers and Shi, DL - Dubois-Leli\`{e}vre
+\normalsize
+
+\section{Appendix A - Code}
+
+\bibliographystyle{apa}
 \addcontentsline{toc}{section}{Bibliography}
 \bibliography{ref}
 
