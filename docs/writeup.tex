@@ -46,7 +46,7 @@ The following variables will be used throughout the paper. Where necessary, math
 
 The Finite Difference Scheme method allows for flexibility between accuracy and time. Monte Carlo methods are heavily dependent on the number of paths to increase accuracy \cite{montecarlo}. For closed form approximations, no tradeoff can be made.
 
-The Implicit Finite Difference Scheme is a modification of the Binomial Tree Method, whereby predefining a grid and setting particular boundary and terminal values allows us to iteratively recover the fair price of an option today.
+The Implicit Finite Difference Scheme is a modification of the Binomial Tree Method, whereby discretizing a grid over a continuous domain and setting particular boundary and terminal values allows us to iteratively recover the fair price of an option today.
 
 INSERT FDS DIAGRAMS HERE
 
@@ -55,7 +55,7 @@ INSERT FDS DIAGRAMS HERE
 The payoff of the options for the fixed and floating strike calls are respectively \(max\{A_T - K, 0\}\) and \(max\{S_T - A_T, 0\}\), given the average price of a stock, which can be calculated by
 \begin{equation}
   A_T = \frac{t_0A + \int_0^T S_t \mathrm{d}t}{t_0 + T}.
-\end{equation}.
+\end{equation}
 
 Supposing that the stock price \(S\) follows Geometric Brownian Motion, we have
 
@@ -97,7 +97,13 @@ where \(W_t^S = W_t - \sigma t\).
 
 We also define
 \begin{equation}
-  \xi_t = a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}},
+  \xi_t =
+  \begin{dcases*}
+    a(t) + b(t) \frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}} & Fixed calls (in general) \\
+    a(t) + b(t) \frac{A_t}{S_t} & Floating calls (in general) \\
+    e^{-r(T-t)}\frac{S_t}{A_t} & New-Vecer fixed call \\
+    \frac{S_t}{A_t} & New-Vecer floating call
+  \end{dcases*}
 \end{equation}
 and make use of the following generic governing partial differential equation
 
@@ -216,7 +222,7 @@ We let \(\Delta\tau = \frac{T}{n}\) and \(\Delta\xi = \frac{\xi_{max}}{m}\), and
 Replacing the PDE with the Crank-Nicholson discretizations yields the following equation:
 \begin{equation}
   \begin{split}
-    \frac{u_{i+1, j} - u_{i, j}}{\Delta\tau} = & \frac{1}{2}\sigma^2j^2(\Delta\xi)^2 * \frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1} -2u_{i+1, j} + u_{i+1, j-1}}{2(\Delta\xi)^2} \\ & - (rj\Delta\xi + \frac{1}{T}) * \frac{u_{i, j+1} - u_{i,j-1} +u_{i+1, j+1} - u_{i+1, j-1}}{4\Delta\xi}.
+    \frac{u_{i+1, j} - u_{i, j}}{\Delta\tau} = & \frac{1}{2}\sigma^2j^2(\Delta\xi)^2 * \frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1} + u_{i + 1, j+1} - 2 u_{i+1, j} + u_{i+1, j-1}}{2(\Delta\xi)^2} \\ & - (rj\Delta\xi + \frac{1}{T}) * \frac{u_{i, j+1} - u_{i,j-1} +u_{i+1, j+1} - u_{i+1, j-1}}{4\Delta\xi}.
   \end{split}
 \end{equation}
 
@@ -240,20 +246,14 @@ The discretization is rearranged to yield
   \end{split}
 \end{equation}
 
-We convert to the matrix form required for the Implicit Difference Scheme used. Truncating the rows where \(j=0\) and \(j=m\), we have
+We convert to the matrix form required for the Implicit Difference Scheme used.
 
 \begin{equation}
-  \textbf{r} = \textbf{Al} + \textbf{Br} + \textbf{k},
+  \textbf{r} = \textbf{Au}_{i} + \textbf{Bu}_{i+1}.
 \end{equation}
 
 where
 
-\begin{equation}
-  \textbf{l} = u_{i},
-\end{equation}
-\begin{equation}
-  \textbf{r} = u_i+1,
-\end{equation}
 \begin{equation}
   \textbf{A} = \begin{bmatrix}
     1-2\alpha(1) & \alpha(1) - \beta(1) & 0 & 0 & \hdots & 0 \\
@@ -272,39 +272,20 @@ where
     0 & 0 & 0 & 0 & \hdots & -2\alpha(m-1)
   \end{bmatrix},
 \end{equation}
-\begin{equation}
-  \textbf{k} = \begin{bmatrix}
-    (\alpha(1) + \beta(1))u_{i, 0} + (\alpha(1) + \beta(1))u_{i+1, 0} \\
-    0 \\
-    \vdots \\
-    0 \\
-    (\alpha(m-1) - \beta(m-1))u_{i, m} + (\alpha(m-1) + \beta(m-1))u_{i+1, m}
-  \end{bmatrix}
-\end{equation}
 
-This rearranges to
+We can then proceed with solving the Finite Difference Grid based on the above recurrence relation. We select \(j'\) such that
 
 \begin{equation}
-  \textbf{r} = (\textbf{I} - \textbf{B})^{-1}(\textbf{Al}+\textbf{k}).
-\end{equation}
-
-We can then proceed with solving the Finite Difference Grid based on the above recurrence relation. Adjusting \(\xi_{max}\) such that we have
-
-\begin{equation}
-  \xi_{max} = \frac{3K}{S_0}.
-\end{equation}
-
-We select \(j'\) such that
-
-\begin{equation}
-  j' = round(\frac{K}{S_0\Delta\xi}).
+  j' = round(\frac{\xi_0}{\Delta\xi}).
 \end{equation}
 
 Then, the fair price of the option \(P\) is given by
 
 \begin{equation}
-  P = S_0 u_{n, j'}
+  P = S_0 u_{n, j'}.
 \end{equation}
+
+We note that it is still possible to perform interpolation to retrieve a more accurate value of \(P\). However, the decision to introduce this rounding process was made too late in the writing of the paper to implement the required change. Earlier in the research, \(j'\) was selected such that \(j'\Delta\xi = \xi_0\) by manipulating \(\xi_{max}\) and \(\Delta\xi\).
 
 \section{Error analysis}
 All schemes apply the Crank-Nicholson discretization. Therefore, we have the error term being of order \(O(\Delta\xi^2 + \Delta t^2)\).
@@ -376,7 +357,7 @@ We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an e
 \normalsize
 
 \section{Results}
-The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{\Delta t} = 400\), that is, fixing the number of time points at 400, and varying the number of state points such that the spacing is consistent over the different methods. Benchmark values for the fixed strike cases are calculated using the method from Dai, Huang and Lyuu \cite{dai_et_al} and for the floating strike case, we use Monte Carlo results from Henderson \textit{et al.} \cite{henderson_et_al}
+The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{\Delta t} = 400\), that is, fixing the number of time points at 400, and varying the number of state points such that the spacing is consistent over the different methods. Benchmark values for the fixed strike cases are calculated using the method from Dai, Huang and Lyuu \cite{dai_et_al} and for the floating strike case, we use Monte Carlo results from Henderson \textit{et al.} \cite{henderson_et_al}. The spacing \(\Delta\xi\) is held constant to be consistent, as we have seen that the error term is of order \(O(\Delta\xi^2 + \Delta t^2)\). Since comparisons are held within the same time interval, the variance of \(\Delta t\) does not cause any issues.
 
 \scriptsize
 \begin{table}[H]
@@ -463,6 +444,8 @@ The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{
 \scriptsize
 *Legend: RS - Rogers and Shi, DL - Dubois-Leli\`{e}vre
 \normalsize
+
+\section{Discussion}
 
 \section{Appendix A - Code}
 
