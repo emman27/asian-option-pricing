@@ -43,18 +43,3 @@ class AsianVecerFixedCall(FixedCall):
 
     def solve(self):
         return super().solve(lambda time: numpy.identity(self.numx + 1) - self.B_matrix(time), lambda time: self.A_matrix(time))
-
-# if __name__ == '__main__':
-#     # Constants
-#     numx = 200
-#     numt = 400
-#     maxt = 1
-#     r = 0.09
-#     s0 = 100
-
-#     sigma = 0.05
-#     print('Expected: 13.38, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-#     print('Expected: 8.81, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-#     print('Expected: 4.33, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-#     print('Expected: 0.88, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-#     print('Expected: 0.06, Actual: ' + str(AsianVecerFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))

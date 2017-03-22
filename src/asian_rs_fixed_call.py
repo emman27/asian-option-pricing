@@ -10,9 +10,6 @@ class AsianRSFixedCall(FixedCall):
         self.set_boundary_conditions()
 
     def initial_value_at_bottom(self, time):
-        '''
-        Calculates the zero-height value of the FDS grid at given time @time
-        '''
         top = (1 - math.exp(-self.r * time * self.dt))
         bottom = (self.r * self.maxt)
         return top / bottom
@@ -54,16 +51,3 @@ class AsianRSFixedCall(FixedCall):
             new = numpy.linalg.solve(left_multiplier(col), right_multiplier(col) * l)
             for row in range(1, self.numx + 1):
                 self.grid.itemset((row, col + 1), new[row])
-# Constants
-# numx = 200
-# numt = 400
-# maxt = 1
-# r = 0.09
-# s0 = 100
-
-# sigma = 0.05
-# print('Expected: 13.07, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 90).solve()))
-# print('Expected: 7.82, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 95).solve()))
-# print('Expected: 3.91, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 100).solve()))
-# print('Expected: 1.65, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 105).solve()))
-# print('Expected: 0.59, Actual: ' + str(AsianRSFixedCall(maxt, numx, numt, r, sigma, s0, 110).solve()))

@@ -43,22 +43,3 @@ class AsianNewVecerFloatCall(FloatingCall):
             new = numpy.linalg.solve(left_multiplier(col), right_multiplier(col) * l)
             for row in range(self.numx):
                 self.grid.itemset((row, col + 1), new[row])
-
-# if __name__ == "__main__":
-#     # Constants
-#     numx = 200
-#     numt = 400
-#     maxt = 1
-#     r = 0.1
-#     s0 = 100
-#     sigma = 0.3
-
-#     t0 = 0.1
-#     print('Expected: 9.87, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
-#     print('Expected: 9.35, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
-#     print('Expected: 8.84, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))
-
-#     t0 = 0.7
-#     print('Expected: 11.21, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 90, t0).solve()))
-#     print('Expected: 6.86, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 100, t0).solve()))
-#     print('Expected: 3.85, Actual: ' + str(AsianNewVecerFloatCall(maxt - t0, numx, numt, r, sigma, s0, 110, t0).solve()))

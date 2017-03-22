@@ -71,7 +71,7 @@ if __name__ == "__main__":
             results = [sigma, strike]
             results.append(BENCHMARKS[j][i])
             for method in METHODS:
-                results.append(round(method(MAXT, NUMX, NUMT, R, sigma, S0, strike).solve(), 2))
+                results.append(method(MAXT, NUMX, NUMT, R, sigma, S0, strike).solve())
                 k += 1
                 bar.update(k)
             output.append(results)
@@ -80,8 +80,6 @@ if __name__ == "__main__":
         writer = csv.writer(csvfile)
         for row in output:
             writer.writerow(row)
-
-    print('break now')
 
     # Floating Strike output
     output = []
@@ -95,7 +93,7 @@ if __name__ == "__main__":
                 results = [sigma, t0, avr]
                 results.append(BENCHMARKS_FLOAT[j][n][i])
                 for method in METHODS_FLOAT:
-                    results.append(round(method(MAXT - t0, NUMX, NUMT, R_FLOAT, sigma, S0, avr, t0).solve(), 2))
+                    results.append(method(MAXT - t0, NUMX, NUMT, R_FLOAT, sigma, S0, avr, t0).solve())
                     k += 1
                     bar.update(k)
                 output.append(results)
