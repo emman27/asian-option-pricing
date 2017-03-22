@@ -226,5 +226,4 @@ TSWLatexianTemp*
 *.pdf
 
 # Saved output
-output_floating.csv
-output_fixed.csv
+*.csv
