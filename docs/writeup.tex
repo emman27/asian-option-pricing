@@ -6,12 +6,29 @@
 \usepackage{color}
 \usepackage[numbers]{natbib}
 \usepackage{float}
+\usepackage{hyperref}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
 
 \begin{document}
+
+\begin{titlepage}
+  \centering
+  \includegraphics[width=0.5\textwidth]{nus}
+
+  \LARGE Final Year Project
+
+  \vspace{1cm}
+  \Large Asian Option Pricing through Finite Difference Schemes
+
+  \vspace{1cm}
+
+  \Large Emmanuel Goh
+  \vfill
+  \large \today
+\end{titlepage}
 
 \tableofcontents
 
@@ -48,7 +65,29 @@ The Finite Difference Scheme method allows for flexibility between accuracy and 
 
 The Implicit Finite Difference Scheme is a modification of the Binomial Tree Method, whereby discretizing a grid over a continuous domain and setting particular boundary and terminal values allows us to iteratively recover the fair price of an option today.
 
-INSERT FDS DIAGRAMS HERE
+\subsection{Binomial Tree Methods}
+\begin{figure}[H]
+  \includegraphics[width=0.5\textwidth]{btm}
+  \caption{Binomial Tree Method}
+  \label{figure:name}
+\end{figure}
+
+The Binomial Tree Method is based on the concept that the price of a stock can either move up or down with the probabilities \(p\) and \(1-p\) respectively. Then, by calculating the probability that any particular path is taken over a finite, discretized number of time points \(n\), we have \(2^n\) different terminal values, each with the probability of occuring \(p^k(1-p)^{n-k}\) where \(k\) is the number of upward movements. Discounting the expected payoff of the option then yields the fair price today. The major flaw in this design is that the time complexity of this naive method is \(O(2^n)\), which is unacceptable for any reasonable usage.
+
+This then leads to a slightly improved method where the product of the upward and downward movements is 1. This causes the tree to simplify significantly, becoming the following figure.
+
+\begin{figure}[H]
+  \includegraphics[width=0.5\textwidth]{btm_improved}
+  \caption{Improved Binomial Tree Method}
+  \label{figure:name}
+\end{figure}
+
+This reduces the complexity from the abovementioned to a respectable \(O(n)\) (noting we only need to get the values of the nodes on the rightmost). However, this method is heavily restricted by the assumptions we place on it, and is unable to retrieve accurate results.
+
+\subsection{Finite Difference Schemes}
+The Improved Binomial Tree Method however lays the foundation of for the explicit finite difference scheme. We see that the \(t_{n+1}\) price of a stock or option is influenced by the \(t_n\) price. Also, the payoff function of a option is clearly known. We then make reasonable assumptions about the highest possible and lowest possible price of a stock, and define appropriate boundary values. Then, discretizing a grid of \(n\) time points and \(m\) price (or state) points, we can iteratively recover the fair price of an option today, using relations between points on the grid that are governed by a discretized partial differential equation.
+
+In this project, an implicit scheme is used, that is, the value of a point at \(t_n\) is influenced by points at both \(t_n\) and \(t_{n+1}\), thus a linear system of size \(m^2\) is solved at each iteration. This results in an overall compleixity of \(O(nm^3)\), which may be unimpressive, but significantly outperforms the Monte Carlo methods when requiring higher levels of accuracy. Here, the Crank-Nicholson discretization is applied to the 5 abovementioned equations, all of which are based on the assumptions of the Black-Scholes model.
 
 \section{Derivation}
 
@@ -305,7 +344,7 @@ Inheritance enables new objects to take on the properties of existing objects \c
 
 Overriding is a feature that enables a child class to provide different implementation for a method that is already defined and/or implemented in its parent class or one of its parent classes \cite{oop_override}. This allows us to implement abstract methods defaulting to a non-damaging value and override them in a subclass only if necessary.
 
-The overall advantage of this design allows for the reduction of 10 different algorithms into a more centralized structure where each algorithm implements only the minimum requirement. The language of choice was Python - a free programming language. We also heavily use the \texttt{NumPy} package, which is the fundamental package for scientific computing with Python.
+The overall advantage of this design allows for the reduction of 10 different algorithms into a more centralized structure where each algorithm implements only the minimum requirement. The language of choice was Python - a free programming language. We also heavily use the \texttt{NumPy} package, which is the fundamental package for scientific computing with Python. Furthermore, code coverage and continuous integration tools were used to suplement the development of this project - a feat much easily achieved in Python than in the traditional MATLAB.
 
 \subsection{\texttt{Option} superclass}
 
@@ -363,7 +402,13 @@ We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an e
 \normalsize
 
 \section{Results}
+
+\subsection{Raw results}
 The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{\Delta t} = 400\), that is, fixing the number of time points at 400, and varying the number of state points such that the spacing is consistent over the different methods. Benchmark values for the fixed strike cases are calculated using the method from Dai, Huang and Lyuu \cite{dai_et_al} and for the floating strike case, we use Monte Carlo results from Henderson \textit{et al.} \cite{henderson_et_al}. The spacing \(\Delta\xi\) is held constant to be consistent, as we have seen that the error term is of order \(O(\Delta\xi^2 + \Delta t^2)\). Since comparisons are held within the same time interval, the variance of \(\Delta t\) does not cause any issues.
+
+We use a variety of volatilities \(\sigma = \{0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6\}\) for the fixed strike case, as well as 5 different strike prices \(K = \{90, 95, 100, 105, 110\}\). The starting price is fixed to \(S_0 = 100\).
+
+For the floating strike case, the time ago which averaging started is varied from \(t_0 = \{0.1, 0.3, 0.5, 0.7, 0.9\}\), the existing average varied between \(A = \{90, 100, 110\}\) and the volatility is varied between \(\sigma = \{0.3, 0.5\}\).
 
 \scriptsize
 \begin{table}[H]
@@ -408,6 +453,8 @@ The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{
   0.6 & 110 & 11.34 & 10.64 & 11.34 & 11.33 & 10.66 & 11.86 \\
   \hline
   \end{tabular}
+  \caption{Fixed Strike Call Prices (in \$)}
+  \label{table:name}
 \end{table}
 \begin{table}[H]
   \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
@@ -446,14 +493,143 @@ The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{
   0.5 & 0.9 & 110 & 3.05 & 3.05 & 3.05 & 3.05 & 3.05 & 2.83 \\
   \hline
   \end{tabular}
+  \caption{Floating Strike Call Prices (in \$)}
+  \label{table:name}
 \end{table}
 \scriptsize
 *Legend: RS - Rogers and Shi, DL - Dubois-Leli\`{e}vre
 \normalsize
 
+\subsection{Percentage errors against benchmark}
+Below show the percentage errors of the abovementioned values, measured against the benchmark.
+
+\scriptsize
+\begin{table}[H]
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+  \hline
+  Volatility & Strike & Benchmark & RS & Vecer & DL & New & New-Vecer \\
+  \hline
+  0.05 & 90 & 13.38 & 5.35 & 0.01 & 0.01 & 5.22 & 4.55 \\
+  0.05 & 95 & 8.81 & 8.25 & 0.01 & 0.02 & 8.42 & 4.56 \\
+  0.05 & 100 & 4.31 & 15.72 & 0.02 & 0.44 & 15.56 & 4.62 \\
+  0.05 & 105 & 0.96 & 14.89 & 0.4 & 1.26 & 15.8 & 5.8 \\
+  0.05 & 110 & 0.05 & 367.3 & 7.3 & 28.34 & 384.69 & 20.63 \\
+  0.1 & 90 & 13.39 & 6.43 & 0.03 & 0.04 & 6.36 & 4.53 \\
+  0.1 & 95 & 8.91 & 7.68 & 0.04 & 0.02 & 7.67 & 4.63 \\
+  0.1 & 100 & 4.92 & 9.23 & 0.11 & 0.3 & 9.13 & 4.49 \\
+  0.1 & 105 & 2.07 & 5.87 & 0.05 & 0.36 & 5.72 & 4.89 \\
+  0.1 & 110 & 0.63 & 8.96 & 0.34 & 0.16 & 10.24 & 5.22 \\
+  0.2 & 90 & 13.83 & 6.48 & 0.02 & 0.0 & 6.39 & 4.59 \\
+  0.2 & 95 & 10.0 & 6.74 & 0.05 & 0.08 & 6.66 & 4.55 \\
+  0.2 & 100 & 6.78 & 6.84 & 0.05 & 0.1 & 6.73 & 4.53 \\
+  0.2 & 105 & 4.3 & 6.75 & 0.09 & 0.17 & 6.68 & 4.56 \\
+  0.2 & 110 & 2.55 & 6.27 & 0.24 & 0.25 & 6.07 & 4.48 \\
+  0.3 & 90 & 14.98 & 6.3 & 0.03 & 0.01 & 6.18 & 4.6 \\
+  0.3 & 95 & 11.66 & 6.42 & 0.04 & 0.06 & 6.31 & 4.55 \\
+  0.3 & 100 & 8.83 & 6.44 & 0.02 & 0.05 & 6.33 & 4.55 \\
+  0.3 & 105 & 6.52 & 6.47 & 0.04 & 0.07 & 6.38 & 4.57 \\
+  0.3 & 110 & 4.7 & 6.45 & 0.11 & 0.12 & 6.33 & 4.52 \\
+  0.4 & 90 & 16.5 & 6.23 & 0.0 & 0.01 & 6.09 & 4.57 \\
+  0.4 & 95 & 13.51 & 6.26 & 0.0 & 0.01 & 6.13 & 4.58 \\
+  0.4 & 100 & 10.92 & 6.26 & 0.03 & 0.02 & 6.13 & 4.6 \\
+  0.4 & 105 & 8.73 & 6.31 & 0.0 & 0.02 & 6.2 & 4.59 \\
+  0.4 & 110 & 6.9 & 6.26 & 0.03 & 0.03 & 6.14 & 4.63 \\
+  0.5 & 90 & 18.19 & 6.18 & 0.0 & 0.03 & 6.02 & 4.56 \\
+  0.5 & 95 & 15.44 & 6.18 & 0.01 & 0.0 & 6.03 & 4.59 \\
+  0.5 & 100 & 13.03 & 6.23 & 0.02 & 0.03 & 6.08 & 4.55 \\
+  0.5 & 105 & 10.93 & 6.23 & 0.0 & 0.02 & 6.11 & 4.58 \\
+  0.5 & 110 & 9.12 & 6.2 & 0.04 & 0.03 & 6.07 & 4.62 \\
+  0.6 & 90 & 19.96 & 6.11 & 0.02 & 0.17 & 5.95 & 4.59 \\
+  0.6 & 95 & 17.41 & 6.17 & 0.02 & 0.16 & 6.01 & 4.55 \\
+  0.6 & 100 & 15.13 & 6.18 & 0.01 & 0.12 & 6.02 & 4.56 \\
+  0.6 & 105 & 13.11 & 6.15 & 0.03 & 0.06 & 6.01 & 4.61 \\
+  0.6 & 110 & 11.34 & 6.17 & 0.02 & 0.06 & 6.02 & 4.6 \\
+  \hline
+  \end{tabular}
+  \caption{Percentage Error of Calculated Prices of Fixed Strike Calls (in \%)}
+  \label{table:name}
+\end{table}
+
+\begin{table}[H]
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+  \hline
+  Volatility & t0 & Average & Benchmark & RS & Vecer & DL & New & New-Vecer \\
+  \hline
+  0.3 & 0.1 & 90 & 9.86 & 0.0 & 0.0 & 0.3 & 0.02 & 6.0 \\
+  0.3 & 0.1 & 100 & 9.35 & 0.07 & 0.07 & 0.26 & 0.05 & 4.92 \\
+  0.3 & 0.1 & 110 & 8.85 & 0.03 & 0.02 & 0.33 & 0.02 & 3.98 \\
+  0.3 & 0.3 & 90 & 10.69 & 0.07 & 0.05 & 0.24 & 0.1 & 7.8 \\
+  0.3 & 0.3 & 100 & 9.06 & 0.03 & 0.02 & 0.19 & 0.03 & 4.58 \\
+  0.3 & 0.3 & 110 & 7.61 & 0.01 & 0.03 & 0.29 & 0.01 & 1.67 \\
+  0.3 & 0.5 & 90 & 11.2 & 0.07 & 0.04 & 0.13 & 0.09 & 9.22 \\
+  0.3 & 0.5 & 100 & 8.31 & 0.05 & 0.06 & 0.18 & 0.09 & 3.85 \\
+  0.3 & 0.5 & 110 & 6.0 & 0.05 & 0.01 & 0.19 & 0.01 & 1.09 \\
+  0.3 & 0.7 & 90 & 11.19 & 0.02 & 0.04 & 0.02 & 0.0 & 10.21 \\
+  0.3 & 0.7 & 100 & 6.86 & 0.04 & 0.07 & 0.1 & 0.05 & 2.65 \\
+  0.3 & 0.7 & 110 & 3.86 & 0.1 & 0.03 & 0.11 & 0.05 & 4.11 \\
+  0.3 & 0.9 & 90 & 10.38 & 0.03 & 0.0 & 0.01 & 0.06 & 10.92 \\
+  0.3 & 0.9 & 100 & 4.07 & 0.1 & 0.09 & 0.09 & 0.05 & 0.86 \\
+  0.3 & 0.9 & 110 & 1.04 & 0.95 & 0.53 & 0.46 & 0.98 & 7.56 \\
+  0.5 & 0.1 & 90 & 14.09 & 0.09 & 0.08 & 0.24 & 0.09 & 1.05 \\
+  0.5 & 0.1 & 100 & 13.65 & 0.04 & 0.03 & 0.31 & 0.04 & 1.68 \\
+  0.5 & 0.1 & 110 & 13.23 & 0.05 & 0.03 & 0.31 & 0.05 & 2.37 \\
+  0.5 & 0.3 & 90 & 14.71 & 0.01 & 0.02 & 0.23 & 0.02 & 0.85 \\
+  0.5 & 0.3 & 100 & 13.33 & 0.02 & 0.03 & 0.27 & 0.02 & 1.26 \\
+  0.5 & 0.3 & 110 & 12.08 & 0.09 & 0.07 & 0.19 & 0.08 & 3.48 \\
+  0.5 & 0.5 & 90 & 14.88 & 0.0 & 0.01 & 0.13 & 0.01 & 3.61 \\
+  0.5 & 0.5 & 100 & 12.42 & 0.02 & 0.04 & 0.18 & 0.04 & 0.21 \\
+  0.5 & 0.5 & 110 & 10.32 & 0.05 & 0.04 & 0.14 & 0.04 & 4.09 \\
+  0.5 & 0.7 & 90 & 14.21 & 0.04 & 0.04 & 0.01 & 0.03 & 7.84 \\
+  0.5 & 0.7 & 100 & 10.49 & 0.03 & 0.01 & 0.05 & 0.03 & 1.31 \\
+  0.5 & 0.7 & 110 & 7.58 & 0.08 & 0.05 & 0.05 & 0.06 & 4.83 \\
+  0.5 & 0.9 & 90 & 11.91 & 0.02 & 0.03 & 0.03 & 0.01 & 10.88 \\
+  0.5 & 0.9 & 100 & 6.44 & 0.02 & 0.03 & 0.04 & 0.04 & 0.98 \\
+  0.5 & 0.9 & 110 & 3.05 & 0.09 & 0.04 & 0.0 & 0.09 & 7.34 \\
+  \hline
+  \end{tabular}
+  \caption{Percentage Error of Caluclated Prices of Floating Strike Calls (in \%)}
+  \label{table:name}
+\end{table}
+\normalsize
+
 \section{Discussion}
+For the fixed strike calls, we see in particular that using Vecer's equation produces the most accurate results, with the Dubois-Leli\`evre method also producing rather accurate results. There is one major outlier at \(\sigma=0.05, K=110\), but this is a result of a small benchmark (\$0.05), with no further digits for comparison. We note that when rounded off, Vecer's equation actually yields 0.05 as well. Using the Rogers-Shi and New equations however shows the largest error of any of the equations. We do note, however, that the Rogers-Shi equation is significantly faster than the other methods, despite not having a lower time complexity.
+
+For the floating strike calls, all equations except the New-Vecer equation perform extremely well, with almost all errors within 0.1\% of the benchmark price. Again, the Rogers-Shi equation is notably faster.
+
+An experiment was conducted where a web application was set up for a small audience to use to price options, giving them freedom over the set of variables \(\{S, K, \sigma, t_0, T, A\}\). All members of the audience responded that the response time was within 5 seconds. The full set of results displayed above was generated within an hour.
+
+In general, since in application we are agnostic to the choice of equation, we can conclude that pricing Asian options using Finite Difference Schemes can be done within 1\% accuracy and reasonable amounts of time. The results show in this paper use \(n=400\) and \(m = 200\) or \(m=400\), here depending on the domain on which the PDE is solved. For fixed strike calls, the preferred equation would be either Vecer's or Dubois-Leli\`evre's, and in the floating strike case the Rogers-Shi equation would provide sufficient accuracy with the bonus of increased computation speed.
 
 \section{Appendix A - Code}
+
+\sloppy
+The full project can be found at \url{https://github.com/emman27/asian-option-pricing}. This contains both source code, this document, as well as the test suite used in conjuction during development.
+
+\subsection{Output Scripts}
+
+\lstset{ %
+  breaklines=true,
+  title=\texttt{output.py},
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue}
+}
+\scriptsize
+\lstinputlisting[language=Python]{../src/output.py}
+\normalsize
+
+\lstset{ %
+  breaklines=true,
+  title=\texttt{percentage\_error.py},
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue}
+}
+\scriptsize
+\lstinputlisting[language=Python]{../src/percentage_error.py}
+\normalsize
+
 
 \bibliographystyle{apa}
 \addcontentsline{toc}{section}{Bibliography}
