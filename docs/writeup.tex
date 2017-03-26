@@ -4,9 +4,10 @@
 \usepackage{url}
 \usepackage{listings}
 \usepackage{color}
-\usepackage[numbers]{natbib}
 \usepackage{float}
 \usepackage{hyperref}
+\usepackage[backend=bibtex]{biblatex}
+\bibliography{ref}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -771,8 +772,7 @@ The following scripts exist to produce the output as given above.
 \lstinputlisting[language=Python]{../src/percentage_error.py}
 \normalsize
 
-\bibliographystyle{apa}
 \addcontentsline{toc}{section}{Bibliography}
-\bibliography{ref}
+\printbibliography
 
 \end{document}
