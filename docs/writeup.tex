@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[12pt]{report}
 \usepackage{mathtools}
 \usepackage{indentfirst}
 \usepackage{url}
@@ -7,6 +7,9 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage[backend=bibtex]{biblatex}
+\usepackage{setspace}
+\doublespacing
+
 \bibliography{ref}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
@@ -38,7 +41,22 @@
 
 \newpage
 
-\section{Introduction}
+\section*{Acknowledgements}
+I thank God for all that He has provided throughout these past 4 years for the completion of this project. Also, the following people have made huge contributions to the project.
+
+My family, who have raised and fed me, and have always been there for me.
+
+A/P Ben Leong, Dr. Leong Wai Kay and Dr. Colin Tan, who have gone out of their way to ensure my education in computer science and algorithms has been more than sufficient for anything required.
+
+Chan Wan Ting, Samuel Lee, Ian Chew and many more friends from Kay Poh Road Baptist Church, who have supported me in all things which were not math.
+
+The quantitative finance cohort of 2017 - Ooi Gene Yan, Ryan Heng, Leon Lim and many others who have helped to go through many of the more mathematical aspects of the project.
+
+NUS Cru for their continual encouragement on a daily basis on campus. I have been very blessed under the leadership of Terence Koh and the encouragement of my fellow students.
+
+\newpage
+
+\chapter{Introduction}
 
 The Asian Option is an option whose payoff is dependent on the average price of the underlying asset over a period of time. These come in fixed strike and floating strike variants. Many different methods of pricing exist, among which include closed-form approximations, lattice methods, as well as Monte Carlo simulations. Each have distinct advantages over the other.
 
@@ -84,7 +102,7 @@ Brown, Handley, Lin and Palmer\cite{main_paper} recover the following generic pa
 \begin{equation}
   \phi_t + [\dot{a}(t) + \dot{b}(t)(\xi - a(t))/b(t)]\phi_\xi + \frac{1}{2}\sigma^2[a(t)+b(t)q(t) - \xi]^2\phi_{\xi\xi} = 0,
 \end{equation}
-where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below table, and \(a(t)\) and \(b(t)\) are arbitrary functions.
+where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below table, and \(a(t)\) and \(b(t)\) are arbitrary functions. This piece of work, in particuular, is crucial to this project, where we heavily draw on the commonalities between the different partial differntial equations.
 
 \begin{table}[H]
   \begin{tabular}{|c|c|c|}
@@ -98,33 +116,35 @@ where \(\phi(T, \xi) = f(\xi)\), and \(f(\xi)\) is defined as per the below tabl
   \caption{Different possible values of \(f(\xi)\)}
 \end{table}
 
-\section{Finite Difference Schemes}
+\chapter{Finite Difference Schemes}
 
 The Finite Difference Scheme method allows for flexibility between accuracy and time. Monte Carlo methods are heavily dependent on the number of paths to increase accuracy \cite{montecarlo}. For closed form approximations, no tradeoff can be made.
 
-The Implicit Finite Difference Scheme is a modification of the Binomial Tree Method, whereby discretizing a grid over a continuous domain and setting particular boundary and terminal values allows us to iteratively recover the fair price of an option today.
+% The Implicit Finite Difference Scheme is a modification of the Binomial Tree Method, whereby discretizing a grid over a continuous domain and setting particular boundary and terminal values allows us to iteratively recover the fair price of an option today.
 
-\subsection{Binomial Tree Methods}
-\begin{figure}[H]
-  \includegraphics[width=0.5\textwidth]{btm}
-  \caption{Binomial Tree Method}
-  \label{figure:name}
-\end{figure}
+% \section{Binomial Tree Methods}
+% \begin{figure}[H]
+%   \includegraphics[width=0.5\textwidth]{btm}
+%   \caption{Binomial Tree Method}
+%   \label{figure:name}
+% \end{figure}
 
-The Binomial Tree Method is based on the concept that the price of a stock can either move up or down with the probabilities \(p\) and \(1-p\) respectively. Then, by calculating the probability that any particular path is taken over a finite, discretized number of time points \(n\), we have \(2^n\) different terminal values, each with the probability of occuring \(p^k(1-p)^{n-k}\) where \(k\) is the number of upward movements. Discounting the expected payoff of the option then yields the fair price today. The major flaw in this design is that the time complexity of this naive method is \(O(2^n)\), which is unacceptable for any reasonable usage.
+% The Binomial Tree Method is based on the concept that the price of a stock can either move up or down with the probabilities \(p\) and \(1-p\) respectively. Then, by calculating the probability that any particular path is taken over a finite, discretized number of time points \(n\), we have \(2^n\) different terminal values, each with the probability of occuring \(p^k(1-p)^{n-k}\) where \(k\) is the number of upward movements. Discounting the expected payoff of the option then yields the fair price today. The major flaw in this design is that the time complexity of this naive method is \(O(2^n)\), which is unacceptable for any reasonable usage.
 
-This then leads to a slightly improved method where the product of the upward and downward movements is 1. This causes the tree to simplify significantly, becoming the following figure.
+% This then leads to a slightly improved method where the product of the upward and downward movements is 1. This causes the tree to simplify significantly, becoming the following figure.
 
-\begin{figure}[H]
-  \includegraphics[width=0.5\textwidth]{btm_improved}
-  \caption{Improved Binomial Tree Method}
-  \label{figure:name}
-\end{figure}
+% \begin{figure}[H]
+%   \includegraphics[width=0.5\textwidth]{btm_improved}
+%   \caption{Improved Binomial Tree Method}
+%   \label{figure:name}
+% \end{figure}
 
-This reduces the complexity from the abovementioned to a respectable \(O(n)\) (noting we only need to get the values of the nodes on the rightmost). However, this method is heavily restricted by the assumptions we place on it, and is unable to retrieve accurate results.
+% This reduces the complexity from the abovementioned to a respectable \(O(n)\) (noting we only need to get the values of the nodes on the rightmost). However, this method is heavily restricted by the assumptions we place on it, and is unable to retrieve accurate results.
 
-\subsection{Finite Difference Schemes}
-The Improved Binomial Tree Method however lays the foundation of for the explicit finite difference scheme. We see that the \(t_{n+1}\) price of a stock or option is influenced by the \(t_n\) price. Also, the payoff function of an option is clearly known. We then make reasonable assumptions about the highest possible and lowest possible price of a stock, and define appropriate boundary values. Then, discretizing a grid of \(n\) time points and \(m\) price (or state) points, we can iteratively recover the fair price of an option today, using relations between points on the grid that are governed by a discretized partial differential equation. In the below example of a finite difference grid, the colored points represent points of known value, with the objective iteratively recovered on the left.
+\section{Finite Difference Schemes}
+A finite difference scheme discretizes a partial differential equation model by discretizing both the governing equation and its' continuous domain, using a truncated domain with reasonable boundary conditions. The approximations to the partial derivatives are then used to recover a fair price of the option.
+
+In our case, we discretize a grid of \(n\) time points and \(m\) price (or state) points and iteratively recover the fair price of an option today, using relations between points on the grid that are governed by a discretized partial differential equation, as well as the known terminal and boundary values of the grid. In the below example of a finite difference grid, the colored points represent points of known value, with the objective iteratively recovered on the left.
 
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{fds.png}
@@ -132,9 +152,9 @@ The Improved Binomial Tree Method however lays the foundation of for the explici
   \label{figure:name}
 \end{figure}
 
-In this project, an implicit scheme is used, that is, the value of a point at \(t_n\) is influenced by points at both \(t_n\) and \(t_{n+1}\), thus a linear system of size \(m^2\) is solved at each iteration. This results in an overall compleixity of \(O(nm^3)\), which may be unimpressive, but significantly outperforms the Monte Carlo methods when requiring higher levels of accuracy. Here, the Crank-Nicholson discretization is applied to the 5 abovementioned equations, all of which are based on the assumptions of the Black-Scholes model.
+In this project, an implicit finite difference scheme is used, that is, the value of a point at \(t_n\) is influenced by points at both \(t_n\) and \(t_{n+1}\), thus a linear system of size \(m^2\) is solved at each iteration. This results in an overall compleixity of \(O(nm^3)\), which may be unimpressive, but significantly outperforms the Monte Carlo methods when requiring higher levels of accuracy. Here, the Crank-Nicholson discretization is applied to the 5 abovementioned equations, all of which are based on the assumptions of the Black-Scholes model.
 
-\subsection{Time Complexity Derivation}
+\section{Time Complexity Derivation}
 The algorithm for estimating the price of the option consists of the following steps.
 \subsubsection{Initializing variables}
 Since there are a finite, fixed number of constants, this operation is of complexity \(O(1)\).
@@ -145,7 +165,7 @@ For majority of the partial differntial equations, no more than 3 sides of the m
 \subsubsection{For each time point, solving a system of linear equations to calculate the values of the next time point}
 At each time point, we solve a \(m*m\) system of linear equations, then copy the values of one array into another. Copying values is a dominated process, and the linear equations are solved by the \texttt{LAPACK routine \_gesv}\cite{numpy_manual}, which is of complexity \(O(m^3)\). Repeating this \(n\) times results in this process dominating everything else in our algorithm, giving us the total complexity of \(O(nm^3)\)
 
-\subsection{Crank-Nicholson Discretization}
+\section{Crank-Nicholson Discretization}
 The Crank-Nicholson scheme uses the following approximation discretizations at the points \((\xi_j, t_{i+\frac{1}{2}})\).
 
 \begin{equation}
@@ -160,7 +180,7 @@ The Crank-Nicholson scheme uses the following approximation discretizations at t
   \phi_{\xi\xi} = \frac{1}{2}(\frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1} + u_{i + 1, j+1} - 2 u_{i+1, j} + u_{i+1, j-1}}{\Delta\xi^2}) + O(\Delta\xi^2)
 \end{equation}
 
-\section{Partial Differential Equations}
+\chapter{Partial Differential Equations}
 We show the transformations used in the 5 different partial differential equations.
 
 For the Rogers-Shi equation, taking \(a(t)\) = \(-b(t)q(t)\) and \(b(t) = -e^{(r-\delta)(T-t)}\), we have the partial differential equation
@@ -193,7 +213,7 @@ Finally, for the New Vecer equation, for the floating strike case (Vecer 2014), 
   \phi_t + \frac{1}{2}\sigma^2\xi^2(q(t)\xi - 1)^2 \phi_{\xi\xi} = 0.
 \end{equation}
 
-\subsection{Boundary Conditions}
+\section{Boundary Conditions}
 Brown, Handley, Lin and Palmer\cite{main_paper} show the following set of boundary conditions hold true.
 
 \begin{table}[H]
@@ -228,7 +248,7 @@ Brown, Handley, Lin and Palmer\cite{main_paper} show the following set of bounda
   \caption{Boundary Conditions for Floating Strike Calls}
 \end{table}
 
-\subsection{A fully worked example}
+\section{A fully worked example}
 The Rogers and Shi equation takes
 \begin{equation}
   \xi_t = q(t)e^{(r-\delta)(T-t)} - e^{(r-\delta)(T-t)}\frac{A_t - Ke^{-\delta(T-t)}}{\tilde{S_t}}.
@@ -345,12 +365,12 @@ We also recognize the possibility of applying higher order interpolation schemes
 
 Similar formulations of the algorithms hold for the other partial differential equations mentioned above.
 
-\section{Error analysis}
+\chapter{Error analysis}
 All schemes apply the Crank-Nicholson discretization. Therefore, we have the truncation error being of order \(O(\Delta\xi^2 + \Delta t^2)\) as mentioned above. However, we also note that in the Big-O Notation, there exists a constant term that varies between schemes and thus explains the difference in accuracy between different methods. Other causes of inaccurate results include instability of the Crank-Nicholson scheme when the payoff function is not smooth (particularly in the fixed strike case), as well as the non-monotonicity when \(\frac{\Delta t}{\Delta\xi^2}\) is not small enough.
 
-\section{Implementation}
+\chapter{Implementation}
 
-\subsection{Inheritance and Overriding}
+\section{Inheritance and Overriding}
 Since the methods governing the solutions of the various Partial Differential Equations are largely similar, we adopt the object-oriented approach. Inheritance and overriding are fundamental concepts of object-oriented programming, and reduce the complexity of the required implementation.
 
 Inheritance enables new objects to take on the properties of existing objects \cite{oop_inheritance}. In this case, we define an \texttt{Option} superclass which implements all commonalities between both fixed and floating strike calls, including keeping track of properties, setting up the grid as well as some of the common methods. \texttt{FixedCall} and \texttt{FloatingCall} superclasses are also defined to handle the mild differences between the two cases.
@@ -361,7 +381,7 @@ The overall advantage of this design allows for the reduction of 10 different al
 
 \normalsize
 
-\subsection{\texttt{Option} superclass}
+\section{\texttt{Option} superclass}
 
 \subsubsection{A special consideration}
 Since the different schemes should apply similar values of \(\Delta\xi\) and \(\Delta t\), we fix \(\xi_{max}\) and adjust the number of points used on the grid such that over the different domains, \(\Delta\xi\) remains constant.
@@ -378,7 +398,7 @@ Since the different schemes should apply similar values of \(\Delta\xi\) and \(\
 \lstinputlisting[language=Python]{../src/option.py}
 \normalsize
 
-\subsection{\texttt{FixedCall} and \texttt{FloatingCall}}
+\section{\texttt{FixedCall} and \texttt{FloatingCall}}
 
 \lstset{ %
   breaklines=true,
@@ -402,7 +422,7 @@ Since the different schemes should apply similar values of \(\Delta\xi\) and \(\
 \lstinputlisting[language=Python]{../src/floating_call.py}
 \normalsize
 
-\subsection{A minimal example implementation}
+\section{A minimal example implementation}
 
 We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an example of an implementation of one method. This method is chosen as an example because it is one of the most straightforward and minimal implementations.
 \lstset{ %
@@ -416,15 +436,15 @@ We use the Dubois-Leli\`{e}vre method of pricing fixed strike calls to show an e
 \lstinputlisting[language=Python]{../src/asian_dl_fixed_call.py}
 \normalsize
 
-\subsection{Short notes}
+\section{Short notes}
 The issue of dividend yield is an extension of this project which was not covered, though clearly can be accounted for. All worked examples assume 0 dividend yield. Also, in the fixed strike case, the time ago which averaging began can be assumed to be \(t_0 = 0\) without loss of generality.
 
-\subsection{Deployment}
+\section{Deployment}
 A web application showcasing the speed and accuracy of the above implemented methods was also developed in Django with Material Bootstrap as a frontend, and can be deployed on a web server with minimal configuration required. This again, utilizes the advantages of implementing in Python, where web frameworks are readily available.
 
-\section{Results}
+\chapter{Results}
 
-\subsection{Raw results}
+\section{Raw results}
 The following results were generated using \(\Delta\xi = 0.025\) and \(\frac{T}{\Delta t} = 400\), that is, fixing the number of time points at 400, and varying the number of state points such that the spacing is consistent over the different methods. Benchmark values for the fixed strike cases are calculated using the method from Dai, Huang and Lyuu \cite{dai_et_al} and for the floating strike case, we use Monte Carlo results from Henderson \textit{et al.} \cite{henderson_et_al}. The spacing \(\Delta\xi\) is held constant to be consistent, as we have seen that the error term is of order \(O(\Delta\xi^2 + \Delta t^2)\). Since comparisons are held within the same time interval, the variance of \(\Delta t\) does not cause any issues. We do expect the accuracy to improve, however, as \(Delta t\) gets smaller, unless it is dominated by the \(\Delta\xi^2\) error term.
 
 We use a variety of volatilities \(\sigma = \{0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6\}\) for the fixed strike case, as well as 5 different strike prices \(K = \{90, 95, 100, 105, 110\}\). The starting price is fixed to \(S_0 = 100\).
@@ -521,98 +541,7 @@ For the floating strike case, the time ago which averaging started is varied fro
 *Legend: RS - Rogers and Shi, DL - Dubois-Leli\`{e}vre
 \normalsize
 
-\subsection{Absolute errors against benchmark}
-Below show the absolute errors of the abovementioned values, measured against the benchmark, rounded off to the nearest cent.
-
-\begin{table}[H]
-  \begin{tabular}{|c|c|c|c|c|c|c|c|}
-  \hline
-  Volatility & Strike & Benchmark & RS & Vecer & DL & New & New-Vecer \\
-  \hline
-  0.05 & 90 & 13.38 & 0.72 & 0.0 & 0.0 & 0.7 & 0.61 \\
-  0.05 & 95 & 8.81 & 0.73 & 0.0 & 0.0 & 0.74 & 0.4 \\
-  0.05 & 100 & 4.31 & 0.68 & 0.0 & 0.02 & 0.67 & 0.2 \\
-  0.05 & 105 & 0.96 & 0.14 & 0.0 & 0.01 & 0.15 & 0.06 \\
-  0.05 & 110 & 0.05 & 0.18 & 0.0 & 0.01 & 0.19 & 0.01 \\
-  0.1 & 90 & 13.39 & 0.86 & 0.0 & 0.01 & 0.85 & 0.61 \\
-  0.1 & 95 & 8.91 & 0.68 & 0.0 & 0.0 & 0.68 & 0.41 \\
-  0.1 & 100 & 4.92 & 0.45 & 0.01 & 0.01 & 0.45 & 0.22 \\
-  0.1 & 105 & 2.07 & 0.12 & 0.0 & 0.01 & 0.12 & 0.1 \\
-  0.1 & 110 & 0.63 & 0.06 & 0.0 & 0.0 & 0.06 & 0.03 \\
-  0.2 & 90 & 13.83 & 0.9 & 0.0 & 0.0 & 0.88 & 0.63 \\
-  0.2 & 95 & 10.0 & 0.67 & 0.0 & 0.01 & 0.67 & 0.45 \\
-  0.2 & 100 & 6.78 & 0.46 & 0.0 & 0.01 & 0.46 & 0.31 \\
-  0.2 & 105 & 4.3 & 0.29 & 0.0 & 0.01 & 0.29 & 0.2 \\
-  0.2 & 110 & 2.55 & 0.16 & 0.01 & 0.01 & 0.15 & 0.11 \\
-  0.3 & 90 & 14.98 & 0.94 & 0.0 & 0.0 & 0.93 & 0.69 \\
-  0.3 & 95 & 11.66 & 0.75 & 0.0 & 0.01 & 0.74 & 0.53 \\
-  0.3 & 100 & 8.83 & 0.57 & 0.0 & 0.0 & 0.56 & 0.4 \\
-  0.3 & 105 & 6.52 & 0.42 & 0.0 & 0.0 & 0.42 & 0.3 \\
-  0.3 & 110 & 4.7 & 0.3 & 0.0 & 0.01 & 0.3 & 0.21 \\
-  0.4 & 90 & 16.5 & 1.03 & 0.0 & 0.0 & 1.01 & 0.75 \\
-  0.4 & 95 & 13.51 & 0.85 & 0.0 & 0.0 & 0.83 & 0.62 \\
-  0.4 & 100 & 10.92 & 0.68 & 0.0 & 0.0 & 0.67 & 0.5 \\
-  0.4 & 105 & 8.73 & 0.55 & 0.0 & 0.0 & 0.54 & 0.4 \\
-  0.4 & 110 & 6.9 & 0.43 & 0.0 & 0.0 & 0.42 & 0.32 \\
-  0.5 & 90 & 18.19 & 1.12 & 0.0 & 0.0 & 1.1 & 0.83 \\
-  0.5 & 95 & 15.44 & 0.95 & 0.0 & 0.0 & 0.93 & 0.71 \\
-  0.5 & 100 & 13.03 & 0.81 & 0.0 & 0.0 & 0.79 & 0.59 \\
-  0.5 & 105 & 10.93 & 0.68 & 0.0 & 0.0 & 0.67 & 0.5 \\
-  0.5 & 110 & 9.12 & 0.57 & 0.0 & 0.0 & 0.55 & 0.42 \\
-  0.6 & 90 & 19.96 & 1.22 & 0.0 & 0.03 & 1.19 & 0.92 \\
-  0.6 & 95 & 17.41 & 1.07 & 0.0 & 0.03 & 1.05 & 0.79 \\
-  0.6 & 100 & 15.13 & 0.93 & 0.0 & 0.02 & 0.91 & 0.69 \\
-  0.6 & 105 & 13.11 & 0.81 & 0.0 & 0.01 & 0.79 & 0.6 \\
-  0.6 & 110 & 11.34 & 0.7 & 0.0 & 0.01 & 0.68 & 0.52 \\
-  \hline
-  \end{tabular}
-  \caption{Absolute Error of Calculated Prices of Fixed Strike Calls (in \$)}
-  \label{table:name}
-\end{table}
-
-\begin{table}[H]
-  \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
-  \hline
-  Volatility & t0 & Average & Benchmark & RS & Vecer & DL & New & New-Vecer \\
-  \hline
-  0.3 & 0.1 & 90 & 9.86 & 0.0 & 0.0 & 0.03 & 0.0 & 0.59 \\
-  0.3 & 0.1 & 100 & 9.35 & 0.01 & 0.01 & 0.02 & 0.0 & 0.46 \\
-  0.3 & 0.1 & 110 & 8.85 & 0.0 & 0.0 & 0.03 & 0.0 & 0.35 \\
-  0.3 & 0.3 & 90 & 10.69 & 0.01 & 0.01 & 0.03 & 0.01 & 0.83 \\
-  0.3 & 0.3 & 100 & 9.06 & 0.0 & 0.0 & 0.02 & 0.0 & 0.41 \\
-  0.3 & 0.3 & 110 & 7.61 & 0.0 & 0.0 & 0.02 & 0.0 & 0.13 \\
-  0.3 & 0.5 & 90 & 11.2 & 0.01 & 0.01 & 0.01 & 0.01 & 1.03 \\
-  0.3 & 0.5 & 100 & 8.31 & 0.0 & 0.0 & 0.02 & 0.01 & 0.32 \\
-  0.3 & 0.5 & 110 & 6.0 & 0.0 & 0.0 & 0.01 & 0.0 & 0.07 \\
-  0.3 & 0.7 & 90 & 11.19 & 0.0 & 0.0 & 0.0 & 0.0 & 1.14 \\
-  0.3 & 0.7 & 100 & 6.86 & 0.0 & 0.0 & 0.01 & 0.0 & 0.18 \\
-  0.3 & 0.7 & 110 & 3.86 & 0.0 & 0.0 & 0.0 & 0.0 & 0.16 \\
-  0.3 & 0.9 & 90 & 10.38 & 0.0 & 0.0 & 0.0 & 0.01 & 1.13 \\
-  0.3 & 0.9 & 100 & 4.07 & 0.0 & 0.0 & 0.0 & 0.0 & 0.04 \\
-  0.3 & 0.9 & 110 & 1.04 & 0.01 & 0.01 & 0.0 & 0.01 & 0.08 \\
-  0.5 & 0.1 & 90 & 14.09 & 0.01 & 0.01 & 0.03 & 0.01 & 0.15 \\
-  0.5 & 0.1 & 100 & 13.65 & 0.01 & 0.0 & 0.04 & 0.01 & 0.23 \\
-  0.5 & 0.1 & 110 & 13.23 & 0.01 & 0.0 & 0.04 & 0.01 & 0.31 \\
-  0.5 & 0.3 & 90 & 14.71 & 0.0 & 0.0 & 0.03 & 0.0 & 0.13 \\
-  0.5 & 0.3 & 100 & 13.33 & 0.0 & 0.0 & 0.04 & 0.0 & 0.17 \\
-  0.5 & 0.3 & 110 & 12.08 & 0.01 & 0.01 & 0.02 & 0.01 & 0.42 \\
-  0.5 & 0.5 & 90 & 14.88 & 0.0 & 0.0 & 0.02 & 0.0 & 0.54 \\
-  0.5 & 0.5 & 100 & 12.42 & 0.0 & 0.0 & 0.02 & 0.0 & 0.03 \\
-  0.5 & 0.5 & 110 & 10.32 & 0.01 & 0.0 & 0.01 & 0.0 & 0.42 \\
-  0.5 & 0.7 & 90 & 14.21 & 0.01 & 0.01 & 0.0 & 0.0 & 1.11 \\
-  0.5 & 0.7 & 100 & 10.49 & 0.0 & 0.0 & 0.01 & 0.0 & 0.14 \\
-  0.5 & 0.7 & 110 & 7.58 & 0.01 & 0.0 & 0.0 & 0.0 & 0.37 \\
-  0.5 & 0.9 & 90 & 11.91 & 0.0 & 0.0 & 0.0 & 0.0 & 1.3 \\
-  0.5 & 0.9 & 100 & 6.44 & 0.0 & 0.0 & 0.0 & 0.0 & 0.06 \\
-  0.5 & 0.9 & 110 & 3.05 & 0.0 & 0.0 & 0.0 & 0.0 & 0.22 \\
-  \hline
-  \end{tabular}
-  \caption{Absolute Error of Caluclated Prices of Floating Strike Calls (in \$)}
-  \label{table:name}
-\end{table}
-\normalsize
-
-\subsection{Percentage errors against benchmark}
+\section{Percentage errors against benchmark}
 Below show the percentage errors of the abovementioned values, measured against the benchmark, rounded off to 2 decimal places.
 
 \scriptsize
@@ -704,7 +633,7 @@ Below show the percentage errors of the abovementioned values, measured against 
 \end{table}
 \normalsize
 
-\section{Discussion}
+\chapter{Conclusion}
 For the fixed strike calls, we see in particular that using Vecer's equation produces the most accurate results, with the Dubois-Leli\`evre method also producing rather accurate results. There is one major outlier at \(\sigma=0.05, K=110\), but this is a result of a small benchmark (\$0.05), with no further digits for comparison. We note that when rounded off, Vecer's equation actually yields 0.05 as well. Using the Rogers-Shi and New equations however shows the largest error of any of the equations. We do note, however, that the Rogers-Shi equation is significantly faster than the other methods, despite not having a lower time complexity.
 
 For the floating strike calls, all equations except the New-Vecer equation perform extremely well, with almost all errors within 0.1\% of the benchmark price. Again, the Rogers-Shi equation is notably faster.
@@ -713,30 +642,19 @@ An experiment was conducted where a web application was set up for a small audie
 
 In general, since in application we are agnostic to the choice of equation, we can conclude that pricing Asian options using Finite Difference Schemes can be done within 1\% accuracy and reasonable amounts of time. The results show in this project use \(n=400\) and \(m = 200\) or \(m=400\), here depending on the domain on which the PDE is solved. For fixed strike calls, the preferred equation would be either Vecer's or Dubois-Leli\`evre's, and in the floating strike case the Rogers-Shi equation would provide sufficient accuracy with the bonus of increased computation speed.
 
-\section{Further Improvements}
-
 Many extensions of this project are possible, including applying a method to smooth the terminal condition, considering dividend yield in the equations, higher orders of interpolation or discretization, and improving the memory efficiency of the program by discarding unused sections of the finite difference grid. In this project, \(\xi_{max}=2\) was used, but this was unnecessarily large for some of the partial differential equations, yielding suboptimal results in some of these cases.
 
-\section{Acknowledgements}
 
-I thank God for all that He has provided throughout these past 4 years for the completion of this project. Also, the following people have made huge contributions to the project.
+\addcontentsline{toc}{section}{Bibliography}
+\printbibliography
 
-My family, who suggested Baygon to get rid of bugs in my code.
+\appendix
 
-A/P Ben Leong, Dr. Leong Wai Kay and Dr. Colin Tan, who have gone out of their way to ensure my education in computer science and algorithms has been more than sufficient for anything required.
-
-Chan Wan Ting, Samuel Lee, Ian Chew and many more friends from Kay Poh Road Baptist Church, who have supported me in all things which were not math.
-
-The quantitative finance cohort of 2017 - Ooi Gene Yan, Ryan Heng, Leon Lim and many others who have helped to go through many of the more mathematical aspects of the project.
-
-NUS Cru for their continual encouragement on a daily basis.
-
-\section{Appendix A - Code}
+\chapter{Code}
 
 \sloppy
 The full project can be found at \url{https://github.com/emman27/asian-option-pricing}. This contains both source code, this document, as well as the test suite used in conjuction during development. The accompanying web application can be found at \url{https://github.com/emman27/asian_option_pricing_webapp}.
 
-\subsection{Output Scripts}
 The following scripts exist to produce the output as given above.
 
 \lstset{ %
@@ -752,17 +670,6 @@ The following scripts exist to produce the output as given above.
 
 \lstset{ %
   breaklines=true,
-  title=\texttt{abs\_error.py},
-  captionpos=b,
-  frame=single,
-  keywordstyle=\color{blue}
-}
-\scriptsize
-\lstinputlisting[language=Python]{../src/abs_error.py}
-\normalsize
-
-\lstset{ %
-  breaklines=true,
   title=\texttt{percentage\_error.py},
   captionpos=b,
   frame=single,
@@ -772,7 +679,5 @@ The following scripts exist to produce the output as given above.
 \lstinputlisting[language=Python]{../src/percentage_error.py}
 \normalsize
 
-\addcontentsline{toc}{section}{Bibliography}
-\printbibliography
 
 \end{document}
